@@ -1,0 +1,33 @@
+/* Páginas legales de Grobi: mismos tokens que index.html (tokens.json) */
+:root{--bg:#fbfbf9; --panel:#ffffff; --ink:#0a0a0a; --muted:#6b6b64; --border:#e2e2db; --accent:#d7ff3f; --accent-text:#5f6e00; --signal:#3d5afe; --warning:#b5650d}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--bg); color:var(--ink); font:400 16px/1.6 'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+a{color:var(--ink); text-underline-offset:3px}
+a:focus-visible{outline:3px solid var(--signal); outline-offset:3px; border-radius:6px}
+
+.lg-nav{position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px max(16px, calc(50% - 360px)); background:rgba(10,10,10,.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px)}
+.lg-back{color:#b9bdae; font-size:14px; text-decoration:none; padding:12px 0}
+.lg-back:hover{color:#fbfbf9}
+.wm-sm{font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-0.04em; line-height:1; font-size:22px; text-decoration:none; white-space:nowrap}
+.wm-sm .gro{color:#f5f5f5; text-shadow:.0155em .02em 0 #c2c2c2,.031em .04em 0 #a0a0a0,.046em .06em 0 #7e7e7e,.0615em .08em 0 #5c5c5c,.077em .1em 0 #3a3a3a,.0925em .12em 0 #181818,.1075em .154em .2155em rgba(0,0,0,.55),0 0 .354em rgba(255,255,255,.1)}
+.wm-sm .bi{color:#d7ff3f; text-shadow:.0155em .02em 0 #c4ec34,.031em .04em 0 #aed52c,.046em .06em 0 #97bd24,.0615em .08em 0 #80a51d,.077em .1em 0 #698d16,.0925em .12em 0 #527510,.1075em .154em .2155em rgba(0,0,0,.55),0 0 .354em rgba(215,255,63,.4)}
+
+.lg{max-width:720px; margin:0 auto; padding:56px 16px 72px}
+.lg-eyebrow{font:600 12px/1.3 'JetBrains Mono',monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-text); margin:0 0 14px}
+.lg h1{font-size:clamp(32px,6vw,44px); line-height:1.05; letter-spacing:-.035em; font-weight:800; margin:0}
+.lg-meta{font:500 13px/1.5 'JetBrains Mono',monospace; color:var(--muted); margin:14px 0 8px}
+.lg h2{font-size:20px; line-height:1.3; letter-spacing:-.015em; font-weight:700; margin:40px 0 10px; padding-top:20px; border-top:1px solid var(--border)}
+.lg p,.lg li{color:#2b2b27; font-size:16px}
+.lg ul{padding-left:20px; margin:8px 0 12px}
+.lg li{margin:6px 0}
+.pend{color:var(--warning); font-weight:600; background:rgba(181,101,13,.08); border-radius:4px; padding:0 4px}
+
+.lg-foot{border-top:1px solid var(--border); padding:24px 16px 40px; text-align:center; font-size:14px; color:var(--muted)}
+.lg-foot a{color:var(--muted); display:inline-block; padding:12px 4px}
+
+/* Modo oscuro automático (tokens.json) */
+@media (prefers-color-scheme:dark){
+  :root{color-scheme:dark; --bg:#0a0a0a; --panel:#161616; --ink:#f5f5f5; --muted:#9a9a94; --border:#2c2c2c; --accent-text:#d7ff3f; --warning:#e08a2e}
+  .lg p,.lg li{color:#d9d9d4}
+}

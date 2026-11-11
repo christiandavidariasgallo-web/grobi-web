@@ -1,0 +1,41 @@
+{
+  "name": "Grobi · Leads del autodiagnóstico",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "grobi-lead",
+        "responseMode": "onReceived",
+        "options": {
+          "allowedOrigins": "https://getgrobi.com,https://www.getgrobi.com"
+        }
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Grobi <david@getgrobi.com>",
+        "toEmail": "contacto@getgrobi.com",
+        "subject": "=Nuevo autodiagnóstico: {{ $json.body.empresa }} ({{ $json.body.nombre }})",
+        "emailFormat": "text",
+        "text": "={{ $json.body.resumen }}\n\n---\nCorreo: {{ $json.body.correo }}\nWhatsApp: {{ $json.body.whatsapp }}\nEnviado: {{ $json.body.enviado }}\nPágina: {{ $json.body.pagina }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "name": "Enviar a contacto@",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [260, 0]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Enviar a contacto@", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {}
+}

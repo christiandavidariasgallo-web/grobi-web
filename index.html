@@ -1,0 +1,2230 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grobi · Revenue &amp; Customer Lifecycle Automation</title>
+<meta name="description" content="El sistema de Grobi atiende tus leads, da seguimiento y avisa a tu equipo cuando importa. Haz tu autodiagnóstico gratis.">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap">
+<style>
+/*
+  Color: fondo claro (crema), paneles blancos con borde definido, tinta casi negra, lima Grobi
+         como único acento (--accent) — tono corporativo: estructura, bordes y tablas en vez de
+         vidrio/blur/glow. Barras de nav y footer en tinta oscura para enmarcar la página.
+  Type: Inter (texto, sin itálicas decorativas), JetBrains Mono (cifras, eyebrows, identificadores)
+  Layout: nav oscuro → hero claro con textura de cuadrícula tipo plano técnico → tarjetas de
+          modelo → promesas de marca → tabla antes/con Grobi → método → credenciales (sin
+          testimonios inventados) → diagnóstico → autodiagnóstico funcional → footer oscuro.
+*/
+:root{
+  color-scheme: light;
+  --bg:#fbfbf9; --panel:#ffffff; --panel-alt:#f1f1ec;
+  --ink:#0a0a0a; --ink-contrast:#fbfbf9; --muted:#6b6b64; --muted-soft:#8a8a80;
+  --border:#e2e2db; --border-soft:rgba(10,10,10,0.05);
+  --accent:#d7ff3f; --accent-ink:#4a5600; --accent-soft:rgba(215,255,63,0.22); --accent-border:rgba(74,86,0,0.28);
+  --success:#1e8e5a; --warning:#b5650d;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Inter', -apple-system, system-ui, sans-serif;
+  margin:0; padding-inline:16px;
+}
+.mono{font-family:'JetBrains Mono', ui-monospace, monospace}
+h1,h2,h3{text-wrap:balance; margin:0}
+p{margin:0; line-height:1.5}
+.eyebrow{font-size:13px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent-ink); margin:0}
+.gv-wordmark{display:flex; justify-content:center; padding-block:4px}
+.gv-word{font-family:'Inter',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.04em; color:var(--ink)}
+.gv-word .gv-dot{color:var(--accent-ink)}
+.gv-word.on-dark{color:var(--ink-contrast)}
+.gv-word.on-dark .gv-dot{color:var(--accent)}
+.card{background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:24px; box-shadow:0 1px 2px rgba(10,10,10,0.03)}
+.btn{
+  appearance:none; border:none; cursor:pointer; font-family:inherit; font-weight:700;
+  font-size:16px; border-radius:9999px; padding:16px 28px; display:inline-flex;
+  align-items:center; justify-content:center; gap:8px; width:100%;
+}
+.btn-primary{background:var(--accent); color:#0a0a0a; box-shadow:0 1px 2px rgba(10,10,10,0.08)}
+.btn-primary:disabled{opacity:0.4; cursor:not-allowed}
+.btn-ghost{background:transparent; color:var(--ink); border:1px solid var(--border)}
+.btn-row{display:flex; gap:12px}
+.btn-row .btn{flex:1}
+[hidden]{display:none!important}
+
+/* progress */
+.progress-track{height:6px; background:var(--panel-alt); border-radius:9999px; overflow:hidden}
+.progress-fill{height:100%; background:var(--accent); border-radius:9999px; transition:width .25s ease}
+.progress-label{font-size:13px; color:var(--muted); display:flex; justify-content:space-between}
+
+/* question groups */
+.question{display:flex; flex-direction:column; gap:12px}
+.question-title{font-size:19px; font-weight:700; letter-spacing:-0.01em}
+.options{display:flex; flex-direction:column; gap:10px}
+.option{position:relative}
+.option input{position:absolute; opacity:0; width:1px; height:1px}
+.option label{
+  display:block; padding:16px 18px; border:1px solid var(--border); border-radius:14px;
+  background:var(--panel); font-size:15px; line-height:1.4; cursor:pointer; color:var(--ink);
+}
+.option input:checked + label{border-color:var(--ink); background:var(--panel-alt); font-weight:600}
+.option input:focus-visible + label{outline:2px solid var(--accent-ink); outline-offset:2px}
+
+/* number inputs */
+.num-row{display:flex; align-items:center; gap:10px}
+.num-row .prefix, .num-row .suffix{font-size:16px; font-weight:700; color:var(--muted)}
+.num-row input[type="number"]{
+  flex:1; font-family:'JetBrains Mono', monospace; font-size:20px; font-weight:600;
+  padding:14px 16px; border:1px solid var(--border); border-radius:12px;
+  background:var(--panel); color:var(--ink); width:100%; min-width:0;
+}
+.num-row input[type="number"]:focus-visible{outline:2px solid var(--accent-ink); outline-offset:1px}
+
+/* slider */
+.slider-row{display:flex; flex-direction:column; gap:10px}
+.slider-value{font-family:'JetBrains Mono', monospace; font-size:28px; font-weight:700; color:var(--ink)}
+input[type="range"]{-webkit-appearance:none; appearance:none; width:100%; height:8px; border-radius:9999px; background:var(--panel-alt); outline:none; margin:0}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none; width:26px; height:26px; border-radius:9999px; background:var(--accent); border:3px solid var(--ink); cursor:pointer}
+input[type="range"]::-moz-range-thumb{width:26px; height:26px; border-radius:9999px; background:var(--accent); border:3px solid var(--ink); cursor:pointer}
+input[type="range"]:focus-visible{outline:2px solid var(--accent-ink); outline-offset:3px}
+
+/* two-option choice */
+.choice2{display:flex; gap:10px}
+.choice2 .option{flex:1}
+.choice2 label{text-align:center; font-size:14px}
+
+/* contact fields */
+.field{display:flex; flex-direction:column; gap:6px}
+.field label{font-size:13px; font-weight:600; color:var(--muted)}
+.field input{font-family:inherit; font-size:16px; padding:14px 16px; border:1px solid var(--border); border-radius:12px; background:var(--panel); color:var(--ink); width:100%}
+.field input:focus-visible{outline:2px solid var(--accent-ink); outline-offset:1px}
+
+/* summary + copy */
+.summary-box{background:var(--panel-alt); border:1px solid var(--border); border-radius:16px; padding:18px; font-size:14px; white-space:pre-wrap; line-height:1.6; max-height:320px; overflow-y:auto; color:var(--ink)}
+.copy-btn{font-family:inherit; font-size:13px; font-weight:700; background:var(--panel); border:1px solid var(--border); border-radius:9999px; padding:8px 14px; cursor:pointer; color:var(--ink)}
+.copy-btn.copied{background:var(--success); color:#fff; border-color:var(--success)}
+.badge{display:inline-flex; align-items:flex-start; gap:8px; font-size:13px; color:var(--muted)}
+.badge .dot{width:8px; height:8px; border-radius:9999px; background:var(--accent-ink); margin-top:5px; flex:none}
+
+/* stat cards */
+.stat-card{display:flex; flex-direction:column; gap:6px; padding:20px; border-radius:16px; border:1px solid var(--border); background:var(--panel)}
+.stat-card .stat-label{font-size:13px; font-weight:600; color:var(--muted)}
+.stat-card .stat-value{font-family:'JetBrains Mono', monospace; font-size:30px; font-weight:700; color:var(--ink)}
+.stat-card .stat-caption{font-size:13px; color:var(--muted); line-height:1.5}
+.stat-card.dark{background:var(--ink); border-color:var(--ink)}
+.stat-card.dark .stat-label{color:#b9bdae}
+.stat-card.dark .stat-value{color:var(--accent)}
+.stat-card.dark .stat-caption{color:#b9bdae}
+.process-step{display:flex; gap:16px; align-items:flex-start}
+.process-num{font-family:'JetBrains Mono', monospace; font-size:20px; font-weight:600; color:var(--accent-ink); min-width:34px; margin:0}
+.process-step h3{font-size:16px; font-weight:700; margin:0 0 4px; color:var(--ink)}
+.process-step p{font-size:14px; color:var(--muted)}
+
+/* ---------- nav (banda oscura) ---------- */
+.mkt-nav{background:var(--ink); border-bottom:1px solid var(--ink)}
+.mkt-nav .mkt-shell{padding-block:16px; flex-direction:row; align-items:center; justify-content:space-between; gap:16px}
+.mkt-nav-links{display:flex; align-items:center; gap:28px}
+.mkt-nav-links a{font-size:13.5px; color:#b9bdae; text-decoration:none}
+.mkt-nav-links a:hover{color:var(--ink-contrast)}
+.mkt-nav-cta{appearance:none; border:none; cursor:pointer; font-family:inherit; font-weight:700; font-size:13.5px; background:var(--accent); color:#0a0a0a; border-radius:9999px; padding:10px 18px; display:inline-flex; align-items:center; gap:6px}
+@media (max-width:700px){.mkt-nav-links{display:none}}
+
+/* ---------- hero (cuadrícula técnica, sin glow orgánico) ---------- */
+.mkt-hero-outer{position:relative; overflow:hidden}
+.mkt-hero-outer::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(var(--border-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+  background-size:42px 42px;
+  -webkit-mask-image:linear-gradient(180deg, black, transparent 92%);
+  mask-image:linear-gradient(180deg, black, transparent 92%);
+}
+.mkt-hero-outer > .mkt-shell{position:relative; z-index:1}
+.mkt-hero.mkt-shell{align-items:center; text-align:center; gap:22px; padding-block:60px 8px}
+.mkt-badge{display:inline-flex; align-items:center; gap:9px; padding:7px 14px 7px 11px; border-radius:9999px; background:var(--panel); border:1px solid var(--border); font-size:12.5px; color:var(--muted)}
+.mkt-badge .dot{width:7px; height:7px; border-radius:9999px; background:var(--accent-ink)}
+.mkt-badge .chev{color:var(--accent-ink)}
+.mkt-hero h1{font-size:clamp(30px,4.6vw,50px); font-weight:800; letter-spacing:-0.03em; line-height:1.1; max-width:840px; color:var(--ink)}
+.mkt-hero h1 .accent{color:var(--accent-ink)}
+.mkt-hero .lede{font-size:clamp(16px,1.9vw,19px); color:var(--muted); max-width:600px; line-height:1.6}
+.mkt-hero-cta{display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:10px}
+.mkt-btn-lg{width:auto; font-size:17px; padding:18px 38px}
+.mkt-trust-row{display:flex; flex-wrap:wrap; justify-content:center; gap:18px}
+.mkt-trust-row span{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted-soft)}
+.mkt-trust-row svg{width:14px; height:14px; color:var(--accent-ink); flex:none}
+
+.mkt-feature-grid{position:relative; z-index:1; display:grid; grid-template-columns:repeat(3,1fr); gap:18px; padding-block:48px 0}
+@media (max-width:820px){.mkt-feature-grid{grid-template-columns:1fr}}
+.mkt-feature-card{background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:24px; box-shadow:0 1px 2px rgba(10,10,10,0.03); display:flex; flex-direction:column; gap:14px; min-width:0}
+.mkt-icon-badge{width:38px; height:38px; border-radius:11px; background:var(--accent-soft); border:1px solid var(--accent-border); display:flex; align-items:center; justify-content:center; color:var(--accent-ink); flex:none}
+.mkt-icon-badge svg{width:20px; height:20px}
+.mkt-feature-card h3{font-size:16px; font-weight:700; color:var(--ink)}
+.mkt-feature-card p{font-size:13.5px; color:var(--muted); line-height:1.55}
+.mkt-feature-visual{height:80px; border-radius:12px; background:var(--panel-alt); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden}
+.mkt-feature-visual svg{width:100%; height:100%; color:var(--accent-ink)}
+
+.mkt-evidence{padding-block:40px; display:flex; flex-direction:column; align-items:center; gap:16px; position:relative; z-index:1}
+.mkt-evidence-row{display:flex; flex-wrap:wrap; justify-content:center; gap:24px 36px}
+.mkt-evidence-mark{font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:600; color:var(--muted); letter-spacing:0.02em}
+
+/* ---------- generic sections ---------- */
+.mkt-band{width:100%}
+.mkt-band.soft{background:var(--panel-alt); border-block:1px solid var(--border)}
+.mkt-shell{max-width:1100px; margin:0 auto; padding-block:56px; display:flex; flex-direction:column; gap:30px}
+.mkt-section-head{display:flex; flex-direction:column; gap:10px; max-width:680px}
+.mkt-section-head h2{font-size:clamp(23px,2.8vw,30px); font-weight:800; letter-spacing:-0.02em; line-height:1.22; color:var(--ink)}
+.mkt-section-head p{font-size:15.5px; color:var(--muted); line-height:1.6}
+.mkt-grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+.mkt-grid-2{display:grid; grid-template-columns:repeat(2,1fr); gap:20px}
+@media (max-width:820px){.mkt-grid-3,.mkt-grid-2{grid-template-columns:1fr}}
+
+/* método */
+.mkt-phase-card{background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:26px; display:flex; flex-direction:column; gap:12px; min-width:0}
+.mkt-phase-num{font-family:'JetBrains Mono', monospace; font-size:12.5px; font-weight:700; color:var(--accent-ink); letter-spacing:0.05em; text-transform:uppercase}
+.mkt-phase-card h3{font-size:17px; font-weight:700; letter-spacing:-0.01em; color:var(--ink)}
+.mkt-phase-card ul{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px}
+.mkt-phase-card li{font-size:13.5px; color:var(--muted); line-height:1.5}
+.mkt-phase-checkpoint{font-size:12px; font-weight:600; color:var(--ink); background:var(--panel-alt); border-radius:10px; padding:9px 12px; margin-top:2px}
+
+/* modelo */
+.mkt-model-row{display:flex; flex-direction:column; gap:16px}
+.mkt-model-item{display:flex; gap:16px; align-items:flex-start; background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:20px}
+.mkt-model-icon{font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700; color:var(--accent-ink); background:var(--accent-soft); border:1px solid var(--accent-border); border-radius:9999px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; flex:none}
+.mkt-model-item h3{font-size:15.5px; font-weight:700; margin-bottom:4px; color:var(--ink)}
+.mkt-model-item p{font-size:13.5px; color:var(--muted); line-height:1.55}
+
+/* promesas */
+.promise-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+@media (max-width:820px){.promise-grid{grid-template-columns:1fr}}
+.promise-badge{background:var(--panel); border:1px solid var(--border); border-radius:18px; padding:24px; display:flex; flex-direction:column; gap:12px}
+.promise-icon{width:40px; height:40px; border-radius:10px; background:var(--accent-soft); border:1px solid var(--accent-border); display:flex; align-items:center; justify-content:center; color:var(--accent-ink); flex:none}
+.promise-icon svg{width:21px; height:21px}
+.promise-badge h3{font-size:16px; font-weight:700; color:var(--ink)}
+.promise-badge p{font-size:13.5px; color:var(--muted); line-height:1.55}
+.promise-badge.highlight{background:var(--ink); border-color:var(--ink)}
+.promise-badge.highlight h3{color:var(--ink-contrast)}
+.promise-badge.highlight p{color:#b9bdae}
+.promise-badge.highlight .promise-icon{background:var(--accent); border-color:var(--accent); color:#0a0a0a}
+
+/* comparación */
+.compare-scroll{overflow-x:auto; border:1px solid var(--border); border-radius:18px; background:var(--panel)}
+.compare-table{width:100%; min-width:640px; border-collapse:collapse}
+.compare-table th{background:var(--panel-alt); text-align:left; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); padding:14px 18px; border-bottom:1px solid var(--border)}
+.compare-table td{padding:16px 18px; font-size:13.5px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.55}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table td.row-label{font-weight:700; color:var(--ink); width:26%}
+.compare-table td.before{color:var(--muted); width:37%}
+.compare-table td.after{color:var(--ink); font-weight:600; width:37%; background:rgba(215,255,63,0.06)}
+.compare-source{font-size:12.5px; color:var(--muted); line-height:1.6; max-width:760px}
+
+/* credenciales (sin testimonios inventados) */
+.credential-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+@media (max-width:700px){.credential-grid{grid-template-columns:1fr}}
+.credential-badge{display:flex; gap:12px; align-items:flex-start; background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:18px}
+.credential-dot{width:8px; height:8px; border-radius:9999px; background:var(--accent-ink); margin-top:6px; flex:none}
+.credential-badge p{font-size:14px; line-height:1.5; color:var(--ink)}
+.testimonial-note{background:var(--panel-alt); border:1px dashed var(--border); border-radius:16px; padding:20px 22px; display:flex; flex-direction:column; gap:6px}
+.testimonial-note p{font-size:13.5px; color:var(--muted); line-height:1.6}
+.testimonial-note p.label{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted-soft)}
+
+/* diagnóstico (sección expandida) */
+.diagnostico-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:28px; align-items:center}
+@media (max-width:820px){.diagnostico-grid{grid-template-columns:1fr}}
+
+.mkt-source-note{font-size:12px; color:var(--muted); line-height:1.6; max-width:680px}
+.mkt-footer{background:var(--ink)}
+.mkt-footer .mkt-shell{align-items:center; text-align:center; gap:12px; padding-block:40px 32px}
+.mkt-footer p{font-size:12.5px; color:#8a8f7e; text-align:center; max-width:460px}
+.app-shell{max-width:640px; margin:0 auto; padding-block:8px 56px; display:flex; flex-direction:column; gap:28px; position:relative; z-index:1}
+#screen-hero .card{gap:16px!important}
+
+/* =========================================================
+   v2 · Nav fija, hero y "Cómo funciona" (signal = sistema, accent = persona)
+   ========================================================= */
+:root{
+  --accent-text:#5f6e00;
+  --signal:#3d5afe; --signal-text:#2a39b5; --signal-soft:rgba(61,90,254,0.08);
+  --surface-dark:#0a0a0a; --surface-dark-2:#141414; --border-dark:#2a2a2a; --muted-dark:#9a9a94;
+}
+html{scroll-behavior:smooth; scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Logotipo compacto (receta 8 capas en em, base 20px) */
+.wm-sm{font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-0.04em; line-height:1; font-size:22px; text-decoration:none; white-space:nowrap}
+.wm-sm .gro{color:#f5f5f5; text-shadow:.0155em .02em 0 #c2c2c2,.031em .04em 0 #a0a0a0,.046em .06em 0 #7e7e7e,.0615em .08em 0 #5c5c5c,.077em .1em 0 #3a3a3a,.0925em .12em 0 #181818,.1075em .154em .2155em rgba(0,0,0,.55),0 0 .354em rgba(255,255,255,.1)}
+.wm-sm .bi{color:#d7ff3f; text-shadow:.0155em .02em 0 #c4ec34,.031em .04em 0 #aed52c,.046em .06em 0 #97bd24,.0615em .08em 0 #80a51d,.077em .1em 0 #698d16,.0925em .12em 0 #527510,.1075em .154em .2155em rgba(0,0,0,.55),0 0 .354em rgba(215,255,63,.4)}
+
+/* Nav fija */
+.g-nav{position:fixed; top:0; left:0; right:0; z-index:50; background:rgba(10,10,10,.92); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-bottom:1px solid var(--border-dark)}
+.g-nav__in{max-width:1100px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:16px}
+.g-nav__links{display:flex; gap:26px}
+.g-nav__links a{font-size:13.5px; color:#b9bdae; text-decoration:none; padding:10px 0}
+.g-nav__links a:hover{color:#fbfbf9}
+.g-nav__cta{appearance:none; border:0; cursor:pointer; font:700 14px/1 'Inter',sans-serif; background:var(--accent); color:#0a0a0a; border-radius:9999px; padding:13px 18px; min-height:44px; display:inline-flex; align-items:center; gap:8px; white-space:nowrap}
+.g-nav__cta:focus-visible,.g-btn:focus-visible{outline:3px solid var(--signal); outline-offset:3px}
+@media (max-width:900px){.g-nav__links{display:none}}
+@media (max-width:380px){.g-nav__cta{padding:12px 14px; font-size:13px}}
+@media (max-width:359px){.g-nav__cta{padding:11px 11px; font-size:12px; gap:6px}}
+
+/* Hero */
+.g-hero{position:relative; overflow:hidden; margin-inline:-16px; padding:132px 16px 72px; background:var(--bg)}
+.g-hero::before{content:""; position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(var(--border-soft) 1px,transparent 1px),linear-gradient(90deg,var(--border-soft) 1px,transparent 1px); background-size:42px 42px; -webkit-mask-image:linear-gradient(180deg,#000,transparent 90%); mask-image:linear-gradient(180deg,#000,transparent 90%)}
+.g-hero__in{position:relative; max-width:1100px; margin:0 auto; display:grid; gap:44px; align-items:center}
+@media (min-width:960px){.g-hero__in{grid-template-columns:1.15fr .85fr; gap:56px}.g-hero{padding:156px 16px 104px}}
+.g-eyebrow{font:600 12px/1.3 'JetBrains Mono',monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-text); margin:0 0 18px}
+.g-hero h1{font-size:clamp(40px,6.2vw,72px); line-height:.98; letter-spacing:-.045em; font-weight:800; color:var(--ink)}
+.g-hero h1 .hl{background:linear-gradient(transparent 62%,var(--accent) 62%,var(--accent) 92%,transparent 92%)}
+.g-hero__sub{font-size:clamp(16px,1.6vw,19px); color:var(--muted); margin-top:20px; max-width:34em}
+.g-hero__ctas{display:flex; flex-wrap:wrap; align-items:center; gap:14px 22px; margin-top:30px}
+.g-btn{appearance:none; border:1.5px solid var(--ink); cursor:pointer; font:700 16px/1 'Inter',sans-serif; background:var(--accent); color:#0a0a0a; border-radius:9999px; padding:17px 26px; min-height:52px; display:inline-flex; align-items:center; gap:10px; transition:transform .2s}
+.g-btn:hover{transform:translateY(-1px)}
+.g-btn:active{transform:scale(.97)}
+.g-link{font-weight:600; font-size:15px; color:var(--ink); text-underline-offset:6px; padding:12px 0}
+.g-trust{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:22px; font:500 12.5px/1.4 'JetBrains Mono',monospace; color:var(--muted)}
+.g-trust span{display:inline-flex; align-items:center; gap:6px}
+.g-trust span::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--accent-text)}
+
+/* Tarjeta de vista previa del hero: quién hizo qué */
+.g-preview{background:var(--surface-dark); color:#f5f5f5; border-radius:24px; padding:22px; display:grid; gap:12px; box-shadow:0 40px 80px -48px rgba(10,10,10,.6)}
+.g-preview__h{display:flex; justify-content:space-between; font:600 11px/1 'JetBrains Mono',monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted-dark); padding-bottom:12px; border-bottom:1px solid var(--border-dark)}
+.g-row{display:flex; align-items:flex-start; gap:12px; background:var(--surface-dark-2); border:1px solid var(--border-dark); border-radius:14px; padding:12px 14px}
+.g-row b{display:block; font-size:14px; margin-bottom:6px}
+.g-row time{margin-left:auto; font:500 11px/1.4 'JetBrains Mono',monospace; color:var(--muted-dark); white-space:nowrap}
+.g-dot{flex:none; width:10px; height:10px; border-radius:50%; margin-top:4px; border:2px solid var(--signal); box-shadow:0 0 0 3px rgba(61,90,254,.2)}
+.g-dot--hum{background:var(--accent); border-color:var(--accent); box-shadow:0 0 0 3px rgba(215,255,63,.2)}
+.g-badge{display:inline-flex; align-items:center; gap:6px; border-radius:9999px; padding:4px 10px; font-size:11.5px; font-weight:600; white-space:nowrap}
+.g-badge--sys{border:1px solid var(--signal); color:#9aaeff}
+.g-badge--hum{background:var(--accent); color:#0a0a0a}
+.g-badge--sys-l{border:1px solid var(--signal); color:var(--signal-text); background:#fff}
+
+/* Cómo funciona */
+.g-how{max-width:1100px; margin:0 auto; padding:88px 0}
+.g-head{display:grid; gap:12px; margin-bottom:28px}
+@media (min-width:900px){.g-head{grid-template-columns:1.1fr .9fr; align-items:end; gap:48px}}
+.g-h2{font-size:clamp(32px,4.4vw,48px); line-height:1; letter-spacing:-.035em; font-weight:800; color:var(--ink)}
+.g-lead{font-size:17px; color:var(--muted)}
+.g-legend{display:flex; flex-wrap:wrap; gap:10px 22px; margin:0 0 30px; padding:0; list-style:none; font-size:14px; color:var(--ink)}
+.g-legend li{display:inline-flex; align-items:center; gap:10px}
+.g-swatch{width:22px; height:22px; border-radius:50%; flex:none}
+.g-swatch--sys{border:2.5px solid var(--signal); background:var(--signal-soft)}
+.g-swatch--hum{background:var(--accent); border:1.5px solid var(--ink)}
+
+.g-flow{position:relative; list-style:none; margin:0; padding:0; display:grid; gap:14px}
+@media (min-width:960px){.g-flow{grid-template-columns:repeat(5,1fr); gap:14px}}
+.g-step{position:relative; display:grid; grid-template-columns:52px 1fr; gap:14px; align-items:start; background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:18px}
+@media (min-width:960px){.g-step{grid-template-columns:1fr; gap:14px; padding:22px 18px; min-height:252px}}
+.g-node{position:relative; z-index:2; width:52px; height:52px; border-radius:50%; display:grid; place-items:center}
+.g-node svg{width:22px; height:22px}
+.g-step--sys .g-node{border:2.5px solid var(--signal); background:#fff; color:var(--signal)}
+.g-step--hum{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink)}
+.g-step--hum .g-node{background:var(--accent); color:#0a0a0a; border:1.5px solid var(--ink); box-shadow:0 0 0 6px rgba(215,255,63,.35)}
+.g-step__n{font:600 11px/1 'JetBrains Mono',monospace; letter-spacing:.06em; color:var(--muted)}
+.g-step h3{font-size:18px; letter-spacing:-.01em; margin:6px 0 4px; color:var(--ink)}
+.g-step p{font-size:14px; color:var(--muted); line-height:1.45; margin-bottom:12px}
+/* Conector entre pasos: punteado signal; el tramo que llega a la persona y sale de ella, firme */
+.g-link-line{position:absolute; z-index:1; background:repeating-linear-gradient(90deg,var(--signal) 0 6px,transparent 6px 11px)}
+.g-link-line--hum{background:var(--ink)}
+@media (min-width:960px){.g-link-line{top:47px; left:calc(18px + 52px); right:-14px; height:2px; transform-origin:0 50%}}
+@media (max-width:959px){.g-link-line{left:44px; top:70px; bottom:-14px; width:2px; transform-origin:50% 0; background:repeating-linear-gradient(180deg,var(--signal) 0 6px,transparent 6px 11px)}.g-link-line--hum{background:var(--ink)}}
+.g-foot{margin-top:22px; font-size:13.5px; color:var(--muted)}
+
+/* Entrada al hacer scroll (sin librerías). Sin JS o con menos movimiento, todo visible. */
+.js-anim .g-flow .g-step{opacity:0; transform:translateY(16px); transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.js-anim .g-flow .g-link-line{transform:scale(0); transition:transform .5s cubic-bezier(.65,0,.35,1)}
+@media (min-width:960px){.js-anim .g-flow .g-link-line{transform:scaleX(0)}}
+@media (max-width:959px){.js-anim .g-flow .g-link-line{transform:scaleY(0)}}
+.js-anim .g-flow .g-step{transition-delay:calc(var(--i,0) * .14s)}
+.js-anim .g-flow .g-link-line{transition-delay:calc(var(--i,0) * .14s + .3s)}
+.js-anim .g-flow.is-in .g-step{opacity:1; transform:none}
+.js-anim .g-flow.is-in .g-link-line{transform:none}
+@media (prefers-reduced-motion:reduce){.js-anim .g-flow .g-step,.js-anim .g-flow .g-link-line{opacity:1; transform:none; transition:none}}
+
+/* =========================================================
+   v2 · Secciones 3, 5–10
+   ========================================================= */
+.g-sec{max-width:1100px; margin:0 auto; padding:88px 0}
+.g-band{margin-inline:-16px; padding-inline:16px}
+.g-band--soft{background:var(--panel-alt); border-block:1px solid var(--border)}
+.g-band--dark{background:var(--surface-dark); color:#f5f5f5}
+.g-band--dark .g-h2{color:#f5f5f5}
+.g-band--dark .g-lead{color:var(--muted-dark)}
+.g-band--dark .g-eyebrow{color:var(--accent)}
+.g-sub{font-size:17px; color:var(--muted); margin-top:12px; max-width:40em}
+
+/* 3 · Banda de confianza: las fuentes con peso de logo wall */
+.g-trustband{max-width:1100px; margin:0 auto; padding:40px 0 8px}
+.g-trustband__t{font:600 11.5px/1.4 'JetBrains Mono',monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); text-align:center; margin-bottom:18px}
+.g-seals{display:grid; gap:10px; list-style:none; margin:0; padding:0}
+@media (min-width:760px){.g-seals{grid-template-columns:repeat(3,1fr)}}
+.g-seal{display:flex; align-items:center; gap:14px; border:1px solid var(--border); background:var(--panel); border-radius:16px; padding:18px 20px; text-decoration:none; color:var(--ink)}
+.g-seal:hover{border-color:var(--ink)}
+.g-seal__mark{font-weight:800; font-size:clamp(17px,1.8vw,21px); letter-spacing:-.02em; line-height:1.1}
+.g-seal__n{margin-left:auto; font:600 18px/1 'JetBrains Mono',monospace; color:var(--ink); white-space:nowrap}
+.g-seal small{display:block; font:500 11.5px/1.3 'JetBrains Mono',monospace; color:var(--muted); margin-top:4px; letter-spacing:0}
+
+/* 5 · Cuándo tiene sentido: filtro por comportamiento */
+.g-fit{display:grid; gap:12px; list-style:none; margin:0; padding:0}
+@media (min-width:760px){.g-fit{grid-template-columns:repeat(2,1fr)}}
+.g-fit li{display:grid; grid-template-columns:48px 1fr; gap:16px; align-items:start; background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:22px}
+.g-ico{width:48px; height:48px; border-radius:14px; display:grid; place-items:center; border:2px solid var(--signal); color:var(--signal); background:#fff}
+.g-ico svg{width:22px; height:22px}
+.g-ico--hum{border:1.5px solid var(--ink); background:var(--accent); color:#0a0a0a}
+.g-fit h3,.g-why h3{font-size:18px; letter-spacing:-.01em; color:var(--ink); margin:2px 0 4px}
+.g-fit p,.g-why p{font-size:14.5px; color:var(--muted); line-height:1.45}
+.g-fit__note{margin-top:22px; display:inline-flex; align-items:center; gap:10px; font-size:15px; font-weight:600; color:var(--ink)}
+.g-fit__note::before{content:""; width:10px; height:10px; border-radius:50%; background:var(--accent); border:1.5px solid var(--ink)}
+
+/* 6 · Resultados en cifras */
+.g-stats{display:grid; gap:12px}
+@media (min-width:860px){.g-stats{grid-template-columns:repeat(3,1fr)}}
+.g-stat{background:var(--surface-dark-2); border:1px solid var(--border-dark); border-radius:22px; padding:28px 24px; display:flex; flex-direction:column; gap:12px; min-height:250px}
+.g-stat__v{font:600 clamp(48px,6vw,68px)/1 'JetBrains Mono',monospace; letter-spacing:-.04em; color:var(--accent); margin-bottom:auto}
+.g-stat__t{font-size:16px; line-height:1.45; color:#f5f5f5; font-weight:600}
+.g-stat__src{font:500 12px/1.5 'JetBrains Mono',monospace; color:var(--muted-dark)}
+.g-stats__note{margin-top:20px; font:500 12.5px/1.5 'JetBrains Mono',monospace; color:var(--muted-dark)}
+
+/* 7 · Por qué Grobi */
+.g-why{display:grid; gap:12px; list-style:none; margin:0; padding:0}
+@media (min-width:760px){.g-why{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1100px){.g-why{grid-template-columns:repeat(4,1fr)}}
+.g-stat__do{font-size:14px; line-height:1.45; color:#f5f5f5; border-top:1px solid var(--border-dark); padding-top:12px; margin-top:4px}
+
+/* Quién está detrás: cara real para una marca nueva */
+.g-who{display:grid; gap:28px; align-items:center}
+@media (min-width:860px){.g-who{grid-template-columns:1.2fr .8fr; gap:56px}}
+.g-who blockquote{margin:0; font-size:clamp(26px,3.2vw,38px); line-height:1.12; letter-spacing:-.03em; font-weight:800; color:var(--ink)}
+.g-who blockquote em{font-style:normal; background:linear-gradient(transparent 62%,var(--accent) 62%,var(--accent) 92%,transparent 92%)}
+.g-who__by{margin-top:22px; display:grid; gap:2px; font-size:14px; color:var(--muted)}
+.g-who__by b{font-size:17px; color:var(--ink)}
+.g-who__img{margin:0; border-radius:24px; overflow:hidden; background:var(--panel-alt); aspect-ratio:4/5; max-width:420px; width:100%; justify-self:center}
+.g-who__img img{width:100%; height:100%; object-fit:cover; display:block}
+.g-why li{background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:24px; display:grid; gap:14px; align-content:start}
+
+/* Autodiagnóstico: encabezado */
+.g-diaghead{max-width:640px; margin:0 auto; padding:88px 0 24px; text-align:left}
+.g-steps{display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 0; padding:0; list-style:none}
+.g-steps li{display:inline-flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; border:1px solid var(--border); background:var(--panel); border-radius:9999px; padding:8px 12px}
+.g-tag{font:600 10.5px/1 'JetBrains Mono',monospace; letter-spacing:.06em; text-transform:uppercase; border-radius:9999px; padding:4px 7px}
+.g-tag--free{background:var(--accent); color:#0a0a0a}
+.g-tag--paid{background:var(--panel-alt); color:var(--ink); border:1px solid var(--border)}
+
+/* 8 · FAQ */
+.g-faq{display:grid; gap:28px}
+@media (min-width:960px){.g-faq{grid-template-columns:.8fr 1.2fr; gap:56px; align-items:start}.g-faq__aside{position:sticky; top:100px}}
+.g-funnel{list-style:none; margin:24px 0 0; padding:0; display:grid; gap:0; border:1px solid var(--border); border-radius:20px; background:var(--panel); overflow:hidden}
+.g-funnel li{display:grid; grid-template-columns:34px 1fr auto; gap:12px; align-items:center; padding:16px 18px; border-bottom:1px solid var(--border)}
+.g-funnel li:last-child{border-bottom:0}
+.g-funnel b{font-size:15px}
+.g-funnel span.n{font:600 12px/1 'JetBrains Mono',monospace; color:var(--muted)}
+.g-acc{border-top:1px solid var(--border)}
+.g-acc details{border-bottom:1px solid var(--border)}
+.g-acc summary{list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 2px; font-size:17px; font-weight:700; letter-spacing:-.01em; color:var(--ink); min-height:44px}
+.g-acc summary::-webkit-details-marker{display:none}
+.g-acc summary::after{content:"+"; flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--border); display:grid; place-items:center; font-weight:500; font-size:18px; transition:transform .25s}
+.g-acc details[open] summary::after{transform:rotate(45deg); background:var(--ink); color:#fff; border-color:var(--ink)}
+.g-acc summary:focus-visible{outline:2px solid var(--signal); outline-offset:2px}
+.g-acc details p{padding:0 44px 20px 2px; color:var(--muted); font-size:15.5px; line-height:1.55}
+
+/* 9 · CTA de cierre con logotipo Hero (receta 12 capas en em, base 130px) */
+.g-close{max-width:1100px; margin:0 auto; padding:104px 0 96px; text-align:center; display:grid; justify-items:center; gap:18px}
+.wm-hero{font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-.04em; line-height:1; font-size:clamp(76px,15vw,160px); margin-bottom:18px}
+.wm-hero .gro{color:#f5f5f5; text-shadow:0 .0077em 0 #e4e4e4,.0077em .0154em 0 #d2d2d2,.0154em .0231em 0 #c0c0c0,.0231em .0308em 0 #aeaeae,.0308em .0408em 0 #9c9c9c,.0385em .0508em 0 #8a8a8a,.0462em .0615em 0 #787878,.0538em .0715em 0 #666,.0615em .0815em 0 #545454,.0692em .0923em 0 #424242,.0769em .1023em 0 #303030,.0846em .1123em 0 #1e1e1e,.0923em .1385em .2em rgba(0,0,0,.65),0 0 .3385em rgba(255,255,255,.08)}
+.wm-hero .bi{color:#d7ff3f; text-shadow:0 .0077em 0 #cdf242,.0077em .0154em 0 #c4ec34,.0154em .0231em 0 #b0d92c,.0231em .0308em 0 #9cc524,.0308em .0408em 0 #88b11d,.0385em .0508em 0 #749d16,.0462em .0615em 0 #60890f,.0538em .0715em 0 #4c7509,.0615em .0815em 0 #386104,.0692em .0923em 0 #244d00,.0769em .1023em 0 #103900,.0846em .1123em 0 #0a2900,.0923em .1385em .2154em rgba(0,0,0,.7),0 0 .4em rgba(215,255,63,.4)}
+.g-close .g-h2{color:#f5f5f5; max-width:16em}
+.g-close .g-btn{margin-top:10px; border-color:var(--accent)}
+.g-close__note{font:500 12.5px/1.5 'JetBrains Mono',monospace; color:var(--muted-dark)}
+
+/* 10 · Footer */
+.g-foot2{max-width:1100px; margin:0 auto; padding:48px 0 36px; display:grid; gap:28px; color:var(--muted-dark); font-size:13.5px}
+@media (min-width:860px){.g-foot2__top{display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:32px}}
+.g-foot2__top{display:grid; gap:24px}
+.g-foot2 h3{margin:0 0 10px; font:600 11px/1 'JetBrains Mono',monospace; letter-spacing:.08em; text-transform:uppercase; color:#f5f5f5}
+.g-foot2 ul{list-style:none; margin:0; padding:0}
+.g-foot2 ul a{color:var(--muted-dark); text-decoration:none; display:inline-block; padding:10px 0}
+.g-foot2 ul a:hover{color:#f5f5f5}
+.g-foot2__src{border-top:1px solid var(--border-dark); padding-top:22px; display:grid; gap:6px; font:500 12px/1.6 'JetBrains Mono',monospace}
+.g-foot2__src b{color:#f5f5f5; font-weight:600}
+.g-pend{color:var(--warning); font-size:11px}
+
+/* Integraciones: tres carriles que se mueven solos */
+.g-int{padding:0 0 88px}
+.g-int__head{max-width:1100px; margin:0 auto 32px; text-align:center; display:grid; gap:12px; justify-items:center}
+.g-int__rows{margin-inline:-16px; display:grid; gap:14px}
+.g-int__lane{overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent); mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.g-int__track{display:flex; flex-wrap:wrap; justify-content:center; gap:12px; list-style:none; margin:0; padding:4px 16px}
+.g-int__track li{display:inline-flex; align-items:center; gap:10px; background:var(--surface-dark); border:1px solid var(--border-dark); border-radius:9999px; padding:12px 22px; font-size:15.5px; font-weight:600; color:#f5f5f5; white-space:nowrap}
+@media (max-width:759px){.g-int__track li{padding:10px 18px; font-size:14.5px}}
+.g-int__track svg{width:20px; height:20px; flex:none; fill:var(--accent)}
+.g-int__track li:not(:has(svg))::before{content:""; width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 1.5px var(--accent-text), 0 0 8px rgba(215,255,63,.7)}
+.js-anim .g-int__track{flex-wrap:nowrap; justify-content:flex-start; width:max-content; padding-inline:0 12px; animation:g-marquee var(--dur,36s) linear infinite}
+.js-anim .g-int__track--rev{animation-direction:reverse}
+.g-int__lane:hover .g-int__track{animation-play-state:paused}
+@keyframes g-marquee{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.js-anim .g-int__track{animation:none; flex-wrap:wrap; width:auto}}
+.g-int__note{text-align:center; margin:28px auto 0; font-size:14.5px; color:var(--muted)}
+.g-int__note a{color:var(--ink); font-weight:600}
+
+/* Precios: mes 1 sin costo + garantía, luego tres planes (orden y badge deliberados, no cambiar) */
+.g-offer{display:grid; gap:24px; background:var(--surface-dark); color:#f5f5f5; border-radius:24px; padding:28px}
+@media (min-width:860px){.g-offer{grid-template-columns:1fr auto; align-items:center; gap:40px; padding:36px 40px}}
+.g-offer__tag{display:inline-flex; font:600 11px/1 'JetBrains Mono',monospace; letter-spacing:.06em; text-transform:uppercase; border:1px solid var(--border-dark); color:var(--muted-dark); border-radius:9999px; padding:6px 10px; margin-bottom:14px}
+.g-offer h3{font-size:clamp(22px,2.6vw,28px); letter-spacing:-.02em; font-weight:800; color:#f5f5f5; margin-bottom:16px}
+.g-offer ul{list-style:none; margin:0; padding:0; display:grid; gap:8px 24px}
+@media (min-width:600px){.g-offer ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.g-offer li{display:flex; gap:10px; font-size:14.5px; color:#d9d9d4}
+.g-offer li::before{content:""; flex:none; width:8px; height:8px; margin-top:7px; border-radius:50%; border:2px solid var(--signal)}
+.g-offer__price{border-top:1px solid var(--border-dark); padding-top:20px}
+@media (min-width:860px){.g-offer__price{border-top:0; border-left:1px solid var(--border-dark); padding:0 0 0 40px; text-align:left}}
+.g-offer__n{font:600 clamp(64px,8vw,88px)/1 'JetBrains Mono',monospace; letter-spacing:-.05em; color:var(--accent)}
+.g-offer__s{font-size:14px; color:var(--muted-dark); margin-top:8px; max-width:16em}
+
+.g-guar{margin-top:12px; display:grid; grid-template-columns:48px 1fr; gap:16px; align-items:start; background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:22px}
+.g-guar h3{font-size:18px; letter-spacing:-.01em; color:var(--ink); margin:2px 0 4px}
+.g-guar p{font-size:14.5px; color:var(--muted); line-height:1.45}
+.g-guar__ok{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0; padding:0; list-style:none}
+.g-guar__ok li{font-size:13px; font-weight:600; color:var(--signal-text); border:1px solid var(--signal); border-radius:9999px; padding:6px 12px; background:#fff}
+
+.g-plans__h{margin:56px 0 22px; display:grid; gap:8px}
+.g-plans__h h3{font-size:clamp(24px,2.8vw,30px); letter-spacing:-.025em; font-weight:800; color:var(--ink)}
+.g-plans{display:grid; gap:14px; list-style:none; margin:0; padding:0}
+@media (min-width:960px){.g-plans{grid-template-columns:repeat(3,minmax(0,1fr)); align-items:stretch}}
+.g-plan{position:relative; display:flex; flex-direction:column; background:var(--panel); border:1px solid var(--border); border-radius:24px; padding:26px 24px}
+.g-plan--rec{border-color:var(--ink); box-shadow:0 0 0 1px var(--ink), 0 30px 60px -40px rgba(10,10,10,.45)}
+@media (max-width:959px){.g-plan--rec{margin-top:12px}}
+.g-plan__badge{position:absolute; top:-13px; left:24px; background:var(--accent); color:#0a0a0a; border:1.5px solid var(--ink); border-radius:9999px; padding:5px 12px; font:700 11px/1 'Inter',sans-serif; letter-spacing:.06em; text-transform:uppercase}
+.g-plan__k{font:600 11px/1.3 'JetBrains Mono',monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+.g-plan h4{font-size:20px; line-height:1.2; letter-spacing:-.015em; font-weight:800; color:var(--ink); margin:8px 0 8px}
+.g-plan__d{font-size:14px; line-height:1.45; color:var(--muted); min-height:3em}
+.g-plan__p{margin:20px 0 0; padding:18px 0; border-block:1px solid var(--border)}
+.g-plan__was{font:500 14px/1 'JetBrains Mono',monospace; color:var(--muted); margin-bottom:8px}
+.g-plan__was s{text-decoration-thickness:1.5px}
+.g-plan__v{font:600 clamp(30px,3vw,36px)/1 'JetBrains Mono',monospace; letter-spacing:-.03em; color:var(--ink)}
+.g-plan__v small{font-size:14px; letter-spacing:0; font-weight:500; color:var(--muted)}
+.g-plan__u{font-size:13px; color:var(--muted); margin-top:8px}
+.g-plan__u span{font-family:'JetBrains Mono',monospace}
+.g-plan__save{display:inline-flex; margin-top:12px; font-size:12.5px; font-weight:700; color:#0a0a0a; background:rgba(215,255,63,.45); border:1px solid var(--accent-border); border-radius:9999px; padding:5px 10px}
+.g-plan ul{list-style:none; margin:18px 0 0; padding:0; display:grid; gap:10px}
+.g-plan li b{font-weight:600}
+.g-plan li{display:flex; gap:10px; font-size:14px; line-height:1.4; color:var(--ink)}
+.g-plan li::before{content:""; flex:none; width:6px; height:6px; margin-top:7px; border-radius:50%; background:var(--ink)}
+.g-plans__foot{margin-top:28px; display:flex; flex-wrap:wrap; align-items:center; gap:14px 24px}
+.g-plans__foot .g-btn{text-decoration:none}
+.privacy-note{font-size:12.5px; line-height:1.5; color:var(--muted); text-align:center}
+.privacy-note a{color:var(--ink); display:inline-block; padding-block:10px}
+.g-plans__ref{font:500 12.5px/1.6 'JetBrains Mono',monospace; color:var(--muted)}
+.g-plans__ref b{color:var(--ink); font-weight:600}
+.g-plans__ref a{color:var(--muted); text-underline-offset:3px}
+.g-plans__note{font:500 12.5px/1.5 'JetBrains Mono',monospace; color:var(--muted); max-width:46em}
+
+/* Cómo funciona: cada cliente tiene su propio embudo */
+.g-own{margin-top:14px; display:grid; grid-template-columns:48px 1fr; gap:16px; align-items:start; background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:18px 22px}
+.g-own__ico{width:48px; height:48px; border-radius:14px; display:grid; place-items:center; border:1.5px solid var(--ink); color:var(--ink); background:var(--panel-alt)}
+.g-own__ico svg{width:22px; height:22px}
+.g-own h3{font-size:18px; letter-spacing:-.01em; color:var(--ink); margin:0 0 2px}
+.g-own p{font-size:14.5px; color:var(--muted); line-height:1.45}
+
+/* Hilo conductor: los dos motores del sistema (mismos nombres que los planes) */
+.g-motor{display:inline-flex; align-items:center; gap:6px; width:max-content; font:600 10.5px/1 'JetBrains Mono',monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); border:1px solid var(--border); background:var(--panel); border-radius:9999px; padding:5px 9px; margin-bottom:10px}
+.g-motor--dark{color:var(--muted-dark); border-color:var(--border-dark); background:transparent; margin-bottom:0}
+.g-motors{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:22px; font-size:13.5px; color:var(--muted)}
+.g-motors span{display:inline-flex; align-items:center; gap:8px}
+.g-motors .g-motor{margin:0}
+
+/* Revisión adversaria: semántica de color, accesibilidad y móvil */
+.g-fit .g-ico,.g-why .g-ico:not(.g-ico--hum){border:1.5px solid var(--ink); color:var(--ink); background:var(--panel-alt)}
+.g-stat:not(:first-child) .g-stat__v{color:#f5f5f5}
+.g-offer li::before{border-color:var(--accent)}
+@media (max-width:959px){.g-hero__in{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){.g-hero__ctas .g-btn{width:100%; justify-content:center; white-space:normal; text-align:center}.g-hero h1{font-size:clamp(34px,10.5vw,40px)}}
+@media (max-width:759px){.g-sec,.g-how{padding:64px 0}.g-hero{padding:104px 16px 56px}.g-int{padding-bottom:64px}}
+.g-motor,.g-tag{font-size:11.5px}
+.g-pend{color:#e08a2e}
+a:focus-visible{outline:3px solid var(--signal); outline-offset:3px; border-radius:6px}
+.g-band--dark a:focus-visible,.g-foot2 a:focus-visible{outline-color:var(--accent)}
+.g-foot2 ul a{padding:12px 0; min-height:44px}
+.g-acc details p a,.g-int__note a{display:inline-block; padding-block:12px}
+.g-link{padding:13px 0}
+.g-skip{position:absolute; left:-9999px; top:8px; z-index:60; background:var(--accent); color:#0a0a0a; font-weight:700; padding:12px 16px; border-radius:12px}
+.g-skip:focus{left:16px}
+/* El CTA del nav aparece cuando el del hero sale de pantalla: un solo botón lima a la vez */
+.g-nav__cta{transition:opacity .25s, transform .25s}
+.g-nav.is-top .g-nav__cta{opacity:0; transform:translateY(-6px); pointer-events:none}
+/* CTA secundario a mitad de página (contorno, para no competir con el lima) */
+.g-btn--line{background:transparent; color:var(--ink); border:1.5px solid var(--ink); text-decoration:none}
+.g-midcta{margin-top:28px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px; font-size:14px; color:var(--muted)}
+/* Carrusel: botón de pausa (WCAG 2.2.2) y pausa fuera de pantalla */
+.g-int__pause{appearance:none; cursor:pointer; font:600 13px/1 'Inter',sans-serif; color:var(--ink); background:var(--panel); border:1px solid var(--border); border-radius:9999px; padding:12px 16px; min-height:44px}
+.g-int__pause:focus-visible{outline:3px solid var(--signal); outline-offset:3px}
+.g-int__rows.is-paused .g-int__track,.g-int__lane:focus-within .g-int__track{animation-play-state:paused}
+
+/* Hero: precio adelantado */
+.g-hero__price{margin-top:14px; font-size:14px; color:var(--muted)}
+.g-hero__price b{color:var(--ink); font-weight:700}
+.g-plan__v small{white-space:nowrap}
+.g-hero__price a{color:var(--ink); font-weight:600; text-underline-offset:4px; display:inline-block; padding-block:12px}
+
+/* Móvil: planes en carrusel horizontal (orden 1-2-3 intacto; el 3 se asoma) */
+.g-plans__hint{display:none}
+@media (max-width:959px){
+  .g-plans{display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:12px; margin-inline:-16px; padding:16px 16px 8px; scroll-padding-inline:16px; scrollbar-width:none}
+  .g-plans::-webkit-scrollbar{display:none}
+  .g-plan{flex:0 0 min(86%,420px); scroll-snap-align:start}
+  .g-plan--rec{margin-top:0}
+  .g-plans__hint{display:flex; align-items:center; gap:8px; margin:-8px 0 4px; font:600 12px/1 'JetBrains Mono',monospace; letter-spacing:.04em; color:var(--muted)}
+}
+
+/* Móvil: "Cómo funciona" como línea de tiempo compacta */
+@media (max-width:959px){
+  .g-flow{gap:10px}
+  .g-step{grid-template-columns:40px 1fr; gap:12px; padding:12px 14px; border-radius:16px}
+  .g-node{width:40px; height:40px}
+  .g-node svg{width:18px; height:18px}
+  .g-step h3{font-size:16px; margin:4px 0 2px}
+  .g-step p{font-size:13.5px; margin:0}
+  .g-link-line{left:34px; top:54px; bottom:-12px}
+  .g-step--hum .g-node{box-shadow:0 0 0 4px rgba(215,255,63,.35)}
+}
+
+/* Móvil: barra fija de CTA (sustituye al botón del nav para no tener dos lima a la vez) */
+.g-mbar{display:none}
+@media (max-width:759px){
+  .g-nav__cta{display:none}
+  .g-mbar{display:flex; position:fixed; left:0; right:0; bottom:0; z-index:55; padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px)); background:rgba(10,10,10,.94); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-top:1px solid var(--border-dark); align-items:center; gap:12px; transform:translateY(110%); transition:transform .3s cubic-bezier(.22,1,.36,1)}
+  .g-mbar.is-on{transform:none}
+  .g-mbar .g-btn{flex:1; justify-content:center; min-height:48px; padding:12px 16px; font-size:15px; border-color:var(--accent)}
+  .g-mbar span{font:500 11.5px/1.3 'JetBrains Mono',monospace; color:var(--muted-dark); white-space:nowrap}
+  body{padding-bottom:76px}
+}
+@media (max-width:759px) and (prefers-reduced-motion:reduce){.g-mbar{transition:none}}
+
+/* =========================================================
+   Fase 1 · Limpieza estilo Apple (solo landing; el quiz no se toca)
+   Escala: 12 / 14 / 17 / 21 / 32 (subtítulo de bloque) / 48 / 72 · cifras en display aparte
+   Tarjetas sin borde: se separan por tono de fondo. Radio único 20px. Mono solo en cifras y citas.
+   ========================================================= */
+/* Tipografía: textos de interfaz pasan a Inter, sin mayúsculas forzadas */
+.g-eyebrow{font:600 17px/1.3 'Inter',sans-serif; letter-spacing:-.01em; text-transform:none; margin-bottom:14px}
+.g-trust{font:500 14px/1.4 'Inter',sans-serif}
+.g-trustband__t{font:500 14px/1.4 'Inter',sans-serif; letter-spacing:0; text-transform:none; margin-bottom:20px}
+.g-preview__h{font:600 12px/1 'Inter',sans-serif; letter-spacing:.02em}
+.g-badge{font-size:12px}
+.g-hero__sub{font-size:clamp(17px,1.6vw,21px)}
+.g-link{font-size:17px}
+.g-nav__links a{font-size:14px}
+.g-btn{font-size:17px}
+.g-step__n{font-size:12px}
+.g-step h3,.g-fit h3,.g-why h3,.g-guar h3,.g-own h3{font-size:17px; font-weight:700}
+.g-fit p,.g-why p,.g-guar p,.g-own p{font-size:14px}
+.g-foot,.g-int__note,.g-motors,.g-steps li,.g-int__pause,.g-offer li,.g-plan__u,.g-foot2{font-size:14px}
+.g-fit__note,.g-stat__t,.g-acc details p{font-size:17px}
+.g-seal__n{font-size:21px}
+.g-seal small,.g-plans__ref{font-size:12px}
+.g-stats__note,.g-plans__note,.g-plans__hint,.g-close__note{font:500 12px/1.5 'Inter',sans-serif; letter-spacing:0}
+.g-close__note{font-size:14px}
+.g-foot2 h3{font:600 12px/1 'Inter',sans-serif; letter-spacing:.04em}
+.g-pend,.g-plan__save,.g-plan__badge,.privacy-note{font-size:12px}
+.g-int__track li{font-size:17px}
+.g-plan h4{font-size:21px}
+.g-offer h3{font-size:21px}
+.g-plans__h h3{font-size:clamp(26px,3vw,32px); letter-spacing:-.03em}
+.g-plan__k{font:600 12px/1.3 'Inter',sans-serif; letter-spacing:0; text-transform:none}
+
+/* Etiquetas: de píldora a texto */
+.g-motor{font:600 12px/1.3 'Inter',sans-serif; letter-spacing:0; text-transform:none; border:0; background:none; padding:0; border-radius:0; color:var(--muted)}
+.g-motor--dark{color:var(--muted-dark)}
+.g-offer__tag{font:600 12px/1.3 'Inter',sans-serif; letter-spacing:0; text-transform:none; border:0; padding:0; border-radius:0; color:var(--muted-dark)}
+.g-steps{gap:10px 24px}
+.g-steps li{border:0; background:none; padding:6px 0; border-radius:0}
+.g-tag{font:600 12px/1 'Inter',sans-serif; letter-spacing:0; text-transform:none; padding:0; border:0; border-radius:0; background:none}
+.g-tag--free,.g-tag--paid{background:none; color:var(--accent-text)}
+.g-guar__ok{gap:8px 20px}
+.g-guar__ok li{border:0; background:none; padding:0; border-radius:0; display:inline-flex; align-items:center; gap:8px; color:var(--ink); font-weight:600; font-size:14px}
+.g-row time{font-size:12px}
+.g-guar__ok li::before{content:""; width:8px; height:8px; border-radius:50%; border:2px solid var(--signal); flex:none}
+.g-plan__save{border:0}
+
+/* Tarjetas sin borde, separadas por tono; radio único */
+.g-step,.g-why li,.g-guar,.g-own,.g-plan,.g-seal{border:0; background:var(--panel-alt); border-radius:20px}
+.g-band--soft{border-block:0}
+.g-band--soft .g-fit li{border:0; background:var(--panel); border-radius:20px}
+.g-seal:hover{background:#e9e9e3}
+.g-why .g-ico:not(.g-ico--hum),.g-own__ico{background:var(--panel)}
+.g-step--hum{box-shadow:0 0 0 1.5px var(--ink)}
+.g-plan--rec{background:var(--panel); box-shadow:0 0 0 2px var(--ink), 0 30px 60px -40px rgba(10,10,10,.45)}
+.g-stat{border:0; border-radius:20px}
+.g-row{border:0}
+.g-preview,.g-offer,.g-who__img{border-radius:20px}
+.g-nav{border-bottom:0}
+.g-int__pause{border:0; background:var(--panel-alt)}
+.g-acc summary::after{border:0; background:var(--panel-alt)}
+.g-acc details[open] summary::after{background:var(--ink)}
+@media (max-width:959px){
+  .g-step{border-radius:20px}
+  .g-step h3{font-size:17px}
+  .g-step p{font-size:14px}
+}
+@media (max-width:759px){
+  .g-int__track li{font-size:14px}
+  .g-mbar{border-top:0}
+  .g-mbar span{font:500 12px/1.3 'Inter',sans-serif}
+}
+
+/* =========================================================
+   Fase 2 · Aire y jerarquía estilo Apple
+   ========================================================= */
+.g-h2{font-size:clamp(34px,4.6vw,56px); line-height:1.02}
+/* Más aire entre secciones */
+@media (min-width:760px){
+  .g-sec,.g-how{padding:112px 0}
+  .g-diaghead{padding-top:112px}
+  .g-int{padding-bottom:112px}
+  .g-close{padding:128px 0 120px}
+}
+@media (min-width:960px){
+  .g-sec,.g-how{padding:136px 0}
+  .g-diaghead{padding-top:136px}
+  .g-int{padding-bottom:136px}
+  .g-close{padding:152px 0 136px}
+  .g-head{margin-bottom:48px}
+}
+@media (max-width:759px){
+  .g-sec,.g-how{padding:80px 0}
+  .g-diaghead{padding-top:80px}
+  .g-int{padding-bottom:80px}
+}
+/* Titulares centrados en las secciones de una sola idea */
+#resultados .g-head,#por-que .g-head{grid-template-columns:1fr; justify-items:center; text-align:center; gap:16px}
+#resultados .g-lead,#por-que .g-lead{max-width:36em}
+#resultados .g-stats__note{text-align:center}
+/* FAQ: una columna, titular centrado arriba */
+.g-faq{grid-template-columns:1fr!important; gap:40px; max-width:820px; margin-inline:auto}
+.g-faq__aside{position:static!important; text-align:center}
+/* Resultados: cifras gigantes */
+.g-stat__v{font-size:clamp(56px,18vw,96px)}
+@media (min-width:860px){
+  .g-stats{grid-template-columns:1fr; gap:0}
+  .g-stat{background:none; border-radius:0; padding:44px 0; min-height:0; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); column-gap:56px; row-gap:10px; align-items:center; border-top:1px solid var(--border-dark)}
+  .g-stat:last-child{border-bottom:1px solid var(--border-dark)}
+  .g-stat__v{grid-column:1; grid-row:1 / span 4; font-size:clamp(96px,10vw,136px); margin:0; align-self:center}
+  .g-stat > :not(.g-stat__v){grid-column:2}
+  .g-stat__t{font-size:21px; line-height:1.35}
+  .g-stat__do{border-top:0; padding-top:4px; margin-top:0; font-size:17px; color:var(--muted-dark)}
+}
+
+/* =========================================================
+   Fase 3 · "Cómo funciona" como historia al hacer scroll (solo con JS y sin movimiento reducido)
+   ========================================================= */
+.is-pin .g-story{height:220vh}
+.is-pin .g-story__pin{position:sticky; top:0; height:100vh; height:100svh; display:flex; flex-direction:column; justify-content:safe center; padding-top:69px}
+/* Pasos: el texto siempre legible; lo que se "apaga" es el nodo y el título */
+.js-anim .is-story .g-flow .g-step{opacity:1; transform:none; transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s; transition-delay:0s}
+.js-anim .is-story .g-flow .g-node{transition:opacity .5s, filter .5s}
+.js-anim .is-story .g-flow .g-step h3{transition:color .5s}
+.js-anim .is-story .g-flow .g-step:not(.is-on) .g-node{opacity:.35; filter:grayscale(1)}
+.js-anim .is-story .g-flow .g-step:not(.is-on) h3{color:var(--muted)}
+.js-anim .is-story .g-flow .g-step--hum:not(.is-on){box-shadow:none}
+/* Conectores: se dibujan solo al pasar al siguiente paso */
+.js-anim .is-story .g-flow .g-link-line{transition-delay:0s}
+@media (min-width:960px){.js-anim .is-story .g-flow.is-in .g-link-line{transform:scaleX(0)}}
+@media (max-width:959px){.js-anim .is-story .g-flow.is-in .g-link-line{transform:scaleY(0)}}
+.js-anim .is-story .g-flow.is-in .g-step.is-done .g-link-line{transform:none}
+/* Paso actual; el de la persona con su propio momento */
+.js-anim .is-story .g-flow .g-step--hum.is-cur{box-shadow:0 0 0 2px var(--ink), 0 0 0 9px rgba(215,255,63,.5), 0 24px 48px -30px rgba(10,10,10,.5)}
+@media (min-width:960px){
+  .js-anim .is-story .g-flow .g-step.is-cur{transform:translateY(-6px)}
+  .js-anim .is-story .g-flow .g-step--sys.is-cur{box-shadow:0 0 0 1.5px var(--signal), 0 24px 48px -32px rgba(61,90,254,.45)}
+}
+/* Contador de la historia (solo con el bloque fijo) */
+.g-story__count{display:none}
+.is-pin .g-story__count{display:flex; align-items:center; gap:16px; margin:28px 0 0; font-size:14px; color:var(--muted)}
+.g-story__bar{display:flex; gap:6px}
+.g-story__bar i{display:block; width:28px; height:3px; border-radius:2px; background:var(--border); transition:background .4s}
+.g-story__bar i.is-on{background:var(--ink)}
+.g-story__num{font:600 14px/1 'JetBrains Mono',monospace; color:var(--ink)}
+.g-story__hint{transition:opacity .4s}
+.is-end .g-story__hint{opacity:0}
+/* Aire: sin doble espacio entre secciones del mismo fondo */
+#quien,#faq{padding-top:24px}
+@media (min-width:760px){#quien,#faq{padding-top:32px}}
+/* Enlaces dentro de notas */
+.g-plans__note a{color:inherit; text-decoration:underline; text-underline-offset:3px}
+
+/* =========================================================
+   Bloque B · Navegación móvil, carrusel de planes y CTA
+   ========================================================= */
+.g-nav__menu{display:none}
+@media (max-width:900px){
+  .g-nav__menu{display:inline-flex; align-items:center; gap:10px; margin-left:auto; appearance:none; background:none; border:0; cursor:pointer; color:#f5f5f5; font:600 15px/1 'Inter',sans-serif; min-height:44px; padding:0 4px}
+  .g-nav__menu:focus-visible{outline:3px solid var(--signal); outline-offset:3px; border-radius:8px}
+  .g-nav__burger{position:relative; width:18px; height:12px}
+  .g-nav__burger::before,.g-nav__burger::after{content:""; position:absolute; left:0; right:0; height:2px; border-radius:2px; background:currentColor; transition:transform .25s}
+  .g-nav__burger::before{top:2px}
+  .g-nav__burger::after{bottom:2px}
+  .g-nav.is-open .g-nav__burger::before{transform:translateY(3px) rotate(45deg)}
+  .g-nav.is-open .g-nav__burger::after{transform:translateY(-3px) rotate(-45deg)}
+  .g-nav.is-open .g-nav__links{display:flex; flex-direction:column; gap:0; position:absolute; top:100%; left:0; right:0; padding:8px 16px 20px; background:var(--surface-dark); box-shadow:0 24px 40px -24px rgba(0,0,0,.6)}
+  .g-nav.is-open .g-nav__links a{font-size:17px; color:#f5f5f5; padding:14px 0}
+}
+@media (max-width:900px) and (min-width:760px){.g-nav__cta{margin-left:16px}}
+@media (prefers-reduced-motion:reduce){.g-nav__burger::before,.g-nav__burger::after{transition:none}}
+
+/* Carrusel de planes: puntos que dicen dónde estás */
+.g-plans__dots{display:none}
+@media (max-width:959px){
+  .g-plans__dots{display:flex; justify-content:center; gap:2px; margin-top:4px}
+  .g-plans__dots button{appearance:none; border:0; background:none; cursor:pointer; padding:10px 4px; display:grid; place-items:center}
+  .g-plans__dots button::before{content:""; display:block; width:8px; height:8px; border-radius:9999px; background:var(--border); transition:width .3s, background .3s}
+  .g-plans__dots button[aria-current="true"]::before{width:24px; background:var(--ink)}
+  .g-plans__dots button:focus-visible{outline:3px solid var(--signal); outline-offset:0; border-radius:8px}
+}
+
+/* "Agenda con David": enlace de texto, el botón queda solo para el autodiagnóstico */
+.g-midcta .g-link{font-size:17px}
+/* Bloque D · Integraciones sin cápsulas: tira de logos en tinta, como un logo wall */
+.g-int__track{gap:8px 40px}
+.g-int__track li{background:none; border:0; border-radius:0; padding:10px 0; color:var(--ink); font-weight:600}
+.g-int__track svg{fill:currentColor; opacity:.85}
+.g-int__track li:not(:has(svg))::before{width:8px; height:8px; background:currentColor; box-shadow:none; opacity:.85}
+@media (max-width:759px){.g-int__track{gap:8px 28px} .g-int__track li{padding:8px 0}}
+
+/* Bloque C · Aprobación, ejemplo ilustrativo y paso 05 de cerca */
+.g-owns{display:grid; gap:12px; margin-top:14px}
+.g-owns .g-own{margin-top:0}
+@media (min-width:760px){.g-owns{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.g-demo{margin-top:72px}
+.g-demo__tag{font-size:14px; font-weight:600; color:var(--muted); margin:0 0 6px}
+.g-demo__h{font-size:clamp(24px,2.8vw,32px); line-height:1.1; letter-spacing:-.03em; font-weight:800; color:var(--ink); margin:0 0 22px}
+.g-demo__grid{display:grid; gap:12px}
+@media (min-width:900px){.g-demo__grid{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); align-items:start}}
+.g-chat,.g-rec{margin:0; background:var(--panel-alt); border-radius:20px; padding:20px; display:flex; flex-direction:column; gap:10px}
+.g-chat__h{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin:0 0 6px; font-size:14px; font-weight:700; color:var(--ink)}
+.g-msg{margin:0; max-width:84%; padding:10px 14px 8px; border-radius:16px; font-size:14px; line-height:1.4; color:var(--ink); background:var(--panel)}
+.g-msg--in{align-self:flex-start; border-bottom-left-radius:6px}
+.g-msg--out{align-self:flex-end; border-bottom-right-radius:6px; box-shadow:inset 0 0 0 1.5px var(--signal)}
+.g-msg time{display:block; margin-top:4px; font:500 11px/1 'JetBrains Mono',monospace; color:var(--muted); text-align:right}
+.g-rec dl{margin:0; background:var(--panel); border-radius:14px; padding:4px 16px}
+.g-rec dl div{display:flex; justify-content:space-between; align-items:center; gap:16px; padding:12px 0; border-top:1px solid var(--border)}
+.g-rec dl div:first-child{border-top:0}
+.g-rec dt{font-size:13px; color:var(--muted)}
+.g-rec dd{margin:0; font-size:14px; font-weight:600; color:var(--ink); text-align:right}
+.g-rec dd.mono{font-family:'JetBrains Mono',monospace; font-weight:500}
+.g-ret-wrap{margin-top:72px}
+.g-ret{list-style:none; margin:0; padding:0; display:grid; gap:12px}
+@media (min-width:900px){.g-ret{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.g-ret li{display:grid; grid-template-columns:48px 1fr; gap:16px; align-items:start; background:var(--panel-alt); border-radius:20px; padding:22px}
+.g-ret h4{font-size:17px; font-weight:700; letter-spacing:-.01em; color:var(--ink); margin:2px 0 4px}
+.g-ret p{font-size:14px; color:var(--muted); line-height:1.45; margin:0}
+.g-ret .g-ico{background:var(--panel)}
+.g-ret .g-ico--hum{background:var(--accent)}
+@media (max-width:759px){.g-demo,.g-ret-wrap{margin-top:56px}}
+
+/* =========================================================
+   Modo oscuro automático (tokens.json: surface-100 #0a0a0a, ink #f5f5f5, muted #9a9a94,
+   accent-text #d7ff3f). Las bandas oscuras suben un tono para seguir separándose del fondo.
+   ========================================================= */
+@media (prefers-color-scheme:dark){
+  :root{
+    color-scheme:dark;
+    --bg:#0a0a0a; --panel:#1f1f1f; --panel-alt:#161616;
+    --ink:#f5f5f5; --ink-contrast:#0a0a0a; --muted:#9a9a94; --muted-soft:#7a7a74;
+    --border:#2c2c2c; --border-soft:rgba(255,255,255,.05);
+    --accent-ink:#d7ff3f; --accent-text:#d7ff3f; --accent-soft:rgba(215,255,63,.12); --accent-border:rgba(215,255,63,.35);
+    --signal-text:#9aaeff; --signal-soft:rgba(61,90,254,.18);
+    --surface-dark:#141414; --surface-dark-2:#1c1c1c; --border-dark:#2e2e2e;
+    --success:#3fb27f; --warning:#e08a2e;
+  }
+  .g-badge--sys-l,.g-step--sys .g-node,.g-ico{background:var(--panel)}
+  .g-ret .g-ico,.g-why .g-ico:not(.g-ico--hum),.g-own__ico,.g-fit .g-ico{background:var(--panel)}
+  .g-ret .g-ico--hum,.g-ico--hum{background:var(--accent); color:#0a0a0a; border-color:var(--accent)}
+  .g-step--hum .g-node{border-color:var(--accent)}
+  .g-acc details[open] summary::after{color:#0a0a0a}
+  .g-seal:hover{background:#222}
+  .g-btn{border-color:var(--accent)}
+  .g-btn--line{border-color:var(--ink)}
+  .g-plan__save{background:var(--accent)}
+  .g-plan__badge{border-color:var(--accent)}
+  .g-who blockquote em{background:none; color:var(--accent)}
+  .g-plan--rec{box-shadow:0 0 0 2px var(--accent)}
+  .g-step--hum{box-shadow:0 0 0 1.5px var(--accent)}
+  .js-anim .is-story .g-flow .g-step--hum.is-cur{box-shadow:0 0 0 2px var(--accent), 0 0 0 9px rgba(215,255,63,.25)}
+  .g-hero::before{opacity:.6}
+  .g-who__img{background:var(--panel-alt)}
+  .card{box-shadow:none}
+  .copy-btn.copied{color:#0a0a0a}
+}
+
+/* Entradas discretas al hacer scroll */
+.js-anim .g-rev{opacity:0; transform:translateY(18px); transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1); transition-delay:calc(var(--i,0) * .1s)}
+.js-anim .g-rev.is-in{opacity:1; transform:none}
+@media (prefers-reduced-motion:reduce){.js-anim .g-rev{opacity:1; transform:none; transition:none}}
+</style>
+
+<script>document.documentElement.classList.add('js-anim');</script>
+
+<!-- ======================= 1. NAV FIJA ======================= -->
+<a class="g-skip" href="#inicio">Saltar al contenido</a>
+<header class="g-nav">
+  <div class="g-nav__in">
+    <a href="#inicio" class="wm-sm" aria-label="Grobi, inicio"><span class="gro">Gro</span><span class="bi">bi</span></a>
+    <nav class="g-nav__links" id="g-menu" aria-label="Principal">
+      <a href="#cuando">Cuándo tiene sentido</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#por-que">Por qué Grobi</a>
+      <a href="#precios">Precios</a>
+      <a href="#faq">Preguntas</a>
+    </nav>
+    <button class="g-nav__menu" id="btn-menu" type="button" aria-expanded="false" aria-controls="g-menu">Menú <span class="g-nav__burger" aria-hidden="true"></span></button>
+    <button class="g-nav__cta" id="btn-nav-cta" type="button">Haz tu autodiagnóstico gratis <span aria-hidden="true">→</span></button>
+  </div>
+</header>
+
+<!-- ======================= 2. HERO ======================= -->
+<section class="g-hero" id="inicio">
+  <div class="g-hero__in">
+    <div>
+      <p class="g-eyebrow">Ventas y seguimiento, en automático</p>
+      <h1>Ningún lead sin respuesta. Ningún cliente sin seguimiento.</h1>
+      <p class="g-hero__sub">El sistema de Grobi atiende, da seguimiento y avisa a tu equipo cuando importa.</p>
+      <div class="g-hero__ctas">
+        <button class="g-btn" id="btn-hero-cta" type="button">Haz tu autodiagnóstico gratis <span aria-hidden="true">→</span></button>
+        <a class="g-link" href="#como-funciona">Ver cómo funciona</a>
+      </div>
+      <p class="g-trust"><span>Gratis, en 3-4 minutos</span><span>Mes 1 sin costo</span><span>Garantía del mes 2</span></p>
+      <p class="g-hero__price">Planes desde <b>$8,500 MXN + IVA al mes</b> · <a href="#precios">Ver planes</a></p>
+    </div>
+    <div class="g-preview" role="img" aria-label="Ejemplo: el sistema de Grobi responde y agenda a un lead, y una persona de tu equipo toma la reunión.">
+      <div class="g-preview__h" aria-hidden="true"><span>Hoy · en tu CRM</span><span>Ejemplo</span></div>
+      <div class="g-row" aria-hidden="true"><span class="g-dot"></span><div><b>Lead nuevo por WhatsApp</b><span class="g-badge g-badge--sys">Respondido por el sistema</span></div><time>21:47</time></div>
+      <div class="g-row" aria-hidden="true"><span class="g-dot"></span><div><b>Calificado y agendado</b><span class="g-badge g-badge--sys">Lo resolvió el sistema</span></div><time>21:49</time></div>
+      <div class="g-row" aria-hidden="true"><span class="g-dot g-dot--hum"></span><div><b>Reunión con tu ejecutivo</b><span class="g-badge g-badge--hum">Lo toma una persona</span></div><time>mañana</time></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 3. BANDA DE CONFIANZA ======================= -->
+<section class="g-trustband" aria-label="Evidencia pública">
+  <p class="g-trustband__t">Esto es lo que dicen los expertos en el tema</p>
+  <ul class="g-seals">
+    <li><a class="g-seal" href="#resultados"><span><span class="g-seal__mark">MIT · InsideSales</span><small>Velocidad de respuesta</small></span><span class="g-seal__n">100×</span></a></li>
+    <li><a class="g-seal" href="#resultados"><span><span class="g-seal__mark">Harvard Business Review</span><small>Retener vs. adquirir</small></span><span class="g-seal__n">5–25×</span></a></li>
+    <li><a class="g-seal" href="#resultados"><span><span class="g-seal__mark">Bain &amp; Company</span><small>Retención y utilidad</small></span><span class="g-seal__n">+25–95%</span></a></li>
+  </ul>
+</section>
+
+<!-- ======================= 5. CUÁNDO TIENE SENTIDO ======================= -->
+<div class="g-band g-band--soft">
+<section class="g-sec" id="cuando">
+  <div class="g-head">
+    <div>
+      <p class="g-eyebrow">Cuándo tiene sentido</p>
+      <h2 class="g-h2">Si ya generas leads, esto es para ti.</h2>
+    </div>
+    <p class="g-lead">Si te pasa algo de esto, Grobi encaja.</p>
+  </div>
+  <ul class="g-fit">
+    <li class="g-rev" style="--i:0"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span><div><span class="g-motor">Adquirir y Convertir</span><h3>Tus leads crecen más rápido que tu equipo</h3><p>Llegan más de los que alcanzas a atender a tiempo.</p></div></li>
+    <li class="g-rev" style="--i:1"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><span class="g-motor">Adquirir y Convertir</span><h3>El seguimiento depende de la memoria</h3><p>Si nadie se acuerda, el lead se enfría.</p></div></li>
+    <li class="g-rev" style="--i:2"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M17 11l5 5M22 11l-5 5"/></svg></span><div><span class="g-motor">Retener y Expandir</span><h3>Clientes que se van sin explicación</h3><p>Te enteras cuando ya decidieron no volver.</p></div></li>
+    <li class="g-rev" style="--i:3"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></span><div><span class="g-motor">Sistema completo</span><h3>Tu CRM está desactualizado, o todo vive en Excel</h3><p>Nadie sabe con certeza cuánto se está perdiendo.</p></div></li>
+  </ul>
+  <p class="g-fit__note">De cualquier industria: lo que importa es cómo opera tu proceso.</p>
+</section>
+</div>
+
+<!-- ======================= 4. CÓMO FUNCIONA ======================= -->
+<section class="g-how" id="como-funciona">
+  <div class="g-story" data-story><div class="g-story__pin">
+  <div class="g-head">
+    <div>
+      <p class="g-eyebrow">Cómo funciona</p>
+      <h2 class="g-h2">Cinco pasos. Una persona en el centro.</h2>
+    </div>
+    <p class="g-lead">El sistema resuelve lo repetitivo; tu ejecutivo entra cuando importa.</p>
+  </div>
+  <ul class="g-legend">
+    <li><span class="g-swatch g-swatch--sys" aria-hidden="true"></span>Lo resuelve el sistema de Grobi solo</li>
+    <li><span class="g-swatch g-swatch--hum" aria-hidden="true"></span>Entra una persona de tu equipo</li>
+  </ul>
+  <ol class="g-flow" data-flow>
+    <li class="g-step g-step--sys" style="--i:0">
+      <span class="g-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5.5 5h13L21 13v6H3v-6z"/></svg></span>
+      <div><span class="g-step__n">01 · SISTEMA</span><h3>Lead entra</h3><p>Responde al instante, en tus canales conectados.</p></div>
+      <span class="g-link-line" aria-hidden="true"></span>
+    </li>
+    <li class="g-step g-step--sys" style="--i:1">
+      <span class="g-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8v5l-4 2v-7z"/></svg></span>
+      <div><span class="g-step__n">02 · SISTEMA</span><h3>Se califica</h3><p>Pregunta lo justo y lo anota en tu CRM.</p></div>
+      <span class="g-link-line" aria-hidden="true"></span>
+    </li>
+    <li class="g-step g-step--sys" style="--i:2">
+      <span class="g-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M9 15l2 2 4-4"/></svg></span>
+      <div><span class="g-step__n">03 · SISTEMA</span><h3>Se agenda</h3><p>Si hay interés, aparta la reunión.</p></div>
+      <span class="g-link-line g-link-line--hum" aria-hidden="true"></span>
+    </li>
+    <li class="g-step g-step--hum" style="--i:3">
+      <span class="g-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg></span>
+      <div><span class="g-step__n">04 · PERSONA</span><h3>Pasa a tu ejecutivo</h3><p>Recibe el caso con contexto y cierra.</p></div>
+      <span class="g-link-line" aria-hidden="true"></span>
+    </li>
+    <li class="g-step g-step--sys" style="--i:4">
+      <span class="g-node" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></span>
+      <div><span class="g-step__n">05 · SISTEMA</span><h3>Seguimiento</h3><p>Vigila señales y avisa si hay riesgo.</p></div>
+    </li>
+  </ol>
+  <p class="g-story__count" aria-hidden="true"><span class="g-story__bar"><i></i><i></i><i></i><i></i><i></i></span><span class="g-story__num">01 / 05</span><span class="g-story__hint">Sigue bajando ↓</span></p>
+  </div></div>
+  <div class="g-owns">
+    <div class="g-own g-rev">
+      <span class="g-own__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg></span>
+      <div><h3>Tu embudo, no una plantilla.</h3><p>El sistema de Grobi se configura sobre tu proceso de venta real, en el mes 1.</p></div>
+    </div>
+    <div class="g-own g-rev">
+      <span class="g-own__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+      <div><h3>Tú apruebas cada mensaje.</h3><p>Mensajes y plantillas salen a tu nombre solo después de que los revisas.</p></div>
+    </div>
+  </div>
+
+  <!-- Bloque C · Ejemplo ilustrativo: conversación + registro en el CRM -->
+  <div class="g-demo" id="ejemplo">
+    <div class="g-demo__head">
+      <p class="g-demo__tag">Ejemplo ilustrativo</p>
+      <h3 class="g-demo__h">Así se ve un lead, de principio a fin.</h3>
+    </div>
+    <div class="g-demo__grid">
+      <figure class="g-chat g-rev" aria-label="Ejemplo de conversación por WhatsApp">
+        <figcaption class="g-chat__h"><span>WhatsApp · Ana R.</span><span class="g-badge g-badge--sys-l">Atiende el sistema</span></figcaption>
+        <p class="g-msg g-msg--in">Hola, vi su anuncio. ¿Me dan informes?<time>21:47</time></p>
+        <p class="g-msg g-msg--out">¡Hola, Ana! Claro. ¿Lo buscas para tu empresa?<time>21:47</time></p>
+        <p class="g-msg g-msg--in">Sí, somos 12 personas.<time>21:48</time></p>
+        <p class="g-msg g-msg--out">Perfecto. ¿Te va bien una llamada mañana a las 10:00 o a las 16:00?<time>21:48</time></p>
+        <p class="g-msg g-msg--in">10:00<time>21:49</time></p>
+        <p class="g-msg g-msg--out">Listo, quedó agendada. Te llega la invitación.<time>21:49</time></p>
+      </figure>
+      <div class="g-rec g-rev" aria-label="Ejemplo del registro que queda en tu CRM">
+        <p class="g-chat__h"><span>Tu CRM · Ana R.</span><span class="g-badge g-badge--sys-l">Registrado por el sistema</span></p>
+        <dl>
+          <div><dt>Canal</dt><dd>WhatsApp</dd></div>
+          <div><dt>Primer contacto</dt><dd class="mono">21:47</dd></div>
+          <div><dt>Calificación</dt><dd>Empresa · 12 personas</dd></div>
+          <div><dt>Etapa</dt><dd>Reunión agendada</dd></div>
+          <div><dt>Reunión</dt><dd>Mañana · <span class="mono">10:00</span></dd></div>
+          <div><dt>Siguiente paso</dt><dd><span class="g-badge g-badge--hum">Tu ejecutivo</span></dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloque C · Paso 05 de cerca: retención -->
+  <div class="g-ret-wrap">
+    <h3 class="g-demo__h">Después de la venta, también.</h3>
+    <ol class="g-ret">
+      <li class="g-rev" style="--i:0"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><div><h4>Contacto en su fecha</h4><p>Cada cliente recibe su seguimiento programado.</p></div></li>
+      <li class="g-rev" style="--i:1"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg></span><div><h4>Detecta una señal</h4><p>Una queja, un silencio o interés en algo más.</p></div></li>
+      <li class="g-rev" style="--i:2"><span class="g-ico g-ico--hum" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg></span><div><h4>Avisa a tu ejecutivo</h4><p>Riesgo de baja u oportunidad, con contexto.</p></div></li>
+    </ol>
+  </div>
+  <p class="g-motors"><span><span class="g-motor">Adquirir y Convertir</span>Pasos 01–04</span><span><span class="g-motor">Retener y Expandir</span>Paso 05</span></p>
+  <div class="g-midcta"><button class="g-btn g-btn--line" id="btn-mid-cta" type="button">Haz tu autodiagnóstico gratis <span aria-hidden="true">→</span></button><span>Mira cuánto aplica a tu caso, con tus números.</span></div>
+</section>
+
+<script>
+(function(){
+  var flow = document.querySelector('[data-flow]');
+  if (!flow) return;
+  if (!('IntersectionObserver' in window)) { flow.classList.add('is-in'); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting){ flow.classList.add('is-in'); io.disconnect(); } });
+  }, { threshold: 0, rootMargin: '0px 0px -15% 0px' });
+  io.observe(flow);
+})();
+/* Fase 3 · "Cómo funciona" como historia al hacer scroll.
+   Escritorio: el bloque se queda fijo y los pasos se encienden uno por uno.
+   Móvil: cada paso se enciende al llegar a él. Con movimiento reducido: estático. */
+(function(){
+  var sec = document.getElementById('como-funciona');
+  var story = sec && sec.querySelector('[data-story]');
+  if (!story || !window.matchMedia) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var steps = Array.prototype.slice.call(sec.querySelectorAll('.g-flow .g-step'));
+  sec.classList.add('is-story');
+  var ticking = false;
+  function pinOK(){ return innerWidth >= 960 && innerHeight >= 640; }
+  function update(){
+    ticking = false;
+    var pin = pinOK(), active = -1;
+    sec.classList.toggle('is-pin', pin);
+    if (pin){
+      var r = story.getBoundingClientRect();
+      if (r.top > 0){ active = r.top < innerHeight * 0.6 ? 0 : -1; }
+      else {
+        var total = story.offsetHeight - innerHeight;
+        var p = Math.min(1, -r.top / total);
+        active = Math.min(steps.length - 1, Math.floor(p * steps.length));
+      }
+    } else {
+      steps.forEach(function(s, i){ if (s.getBoundingClientRect().top < innerHeight * 0.72) active = i; });
+    }
+    steps.forEach(function(s, i){
+      s.classList.toggle('is-on', i <= active);
+      s.classList.toggle('is-cur', i === active);
+      s.classList.toggle('is-done', i < active);
+    });
+    var shown = Math.max(0, active);
+    bars.forEach(function(b, i){ b.classList.toggle('is-on', i <= shown); });
+    if (num) num.textContent = '0' + (shown + 1) + ' / 0' + steps.length;
+    sec.classList.toggle('is-end', active === steps.length - 1);
+  }
+  var bars = Array.prototype.slice.call(sec.querySelectorAll('.g-story__bar i'));
+  var num = sec.querySelector('.g-story__num');
+  function onScroll(){ if (!ticking){ ticking = true; requestAnimationFrame(update); } }
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll);
+  update();
+})();
+</script>
+
+<!-- ======================= 6. RESULTADOS EN CIFRAS ======================= -->
+<div class="g-band g-band--dark">
+<section class="g-sec" id="resultados">
+  <div class="g-head">
+    <div>
+      <p class="g-eyebrow">Resultados en cifras</p>
+      <h2 class="g-h2">Responder rápido y retener vale más.</h2>
+    </div>
+    <p class="g-lead">Tres estudios públicos, citados uno por uno.</p>
+  </div>
+  <div class="g-stats">
+    <article class="g-stat g-rev" style="--i:0"><span class="g-motor g-motor--dark">Adquirir y Convertir</span><p class="g-stat__v">100×</p><p class="g-stat__t">Contactar en 5 minutos, y no en 30, multiplica la probabilidad de conectar.</p><p class="g-stat__src">MIT · InsideSales</p><p class="g-stat__do">→ Responde en segundos, a toda hora.</p></article>
+    <article class="g-stat g-rev" style="--i:1"><span class="g-motor g-motor--dark">Retener y Expandir</span><p class="g-stat__v">5–25×</p><p class="g-stat__t">Conseguir un cliente nuevo cuesta de 5 a 25 veces más que retenerlo.</p><p class="g-stat__src">Harvard Business Review</p><p class="g-stat__do">→ Sigue al cliente después de la venta.</p></article>
+    <article class="g-stat g-rev" style="--i:2"><span class="g-motor g-motor--dark">Retener y Expandir</span><p class="g-stat__v">+25–95%</p><p class="g-stat__t">Subir 5 puntos la retención puede elevar la utilidad de 25 % a 95 %.</p><p class="g-stat__src">Bain &amp; Company</p><p class="g-stat__do">→ Avisa si hay riesgo de baja.</p></article>
+  </div>
+  <p class="g-stats__note">Cifras de terceros. Grobi está en lanzamiento: por eso tu mes 1 es $0 y el mes 2 tiene garantía.</p>
+</section>
+</div>
+
+<!-- ======================= 7. POR QUÉ GROBI ======================= -->
+<section class="g-sec" id="por-que">
+  <div class="g-head">
+    <div>
+      <p class="g-eyebrow">Por qué Grobi</p>
+      <h2 class="g-h2">Un sistema que trabaja para tus KPIs.</h2>
+    </div>
+    <p class="g-lead">Lo que hace distinto al sistema de Grobi.</p>
+  </div>
+  <ul class="g-why">
+    <li class="g-rev" style="--i:0"><span class="g-ico g-ico--hum" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg></span><div><h3>Una persona siempre detrás</h3><p>El sistema pasa a tu ejecutivo lo que necesita criterio.</p></div></li>
+    <li class="g-rev" style="--i:1"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><div><h3>Vive dentro de tu CRM</h3><p>Cada contacto queda registrado, sin capturas a mano.</p></div></li>
+    <li class="g-rev" style="--i:2"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V11M10 19V5M16 19v-7M20 19v-3"/></svg></span><div><h3>Empieza con tus números</h3><p>Primero el diagnóstico de procesos; después, metas con datos reales.</p></div></li>
+    <li class="g-rev" style="--i:4"><span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></span><div><h3>Tus KPIs ahora son nuestro objetivo</h3><p>Medimos el avance con tus indicadores, no con los nuestros.</p></div></li>
+  </ul>
+</section>
+
+<!-- ======================= 7b. INTEGRACIONES =======================
+     LISTA POR CONFIRMAR: dejar solo las herramientas con las que el sistema de Grobi ya se conecta.
+     Se quitaron los modelos de IA y las herramientas de desarrollo (revisión adversaria): el comprador es una PyME. -->
+<section class="g-int" id="integraciones" aria-labelledby="int-t">
+  <div class="g-int__head">
+    <p class="g-eyebrow">Integraciones</p>
+    <h2 class="g-h2" id="int-t">Se conecta con lo que ya usas.</h2>
+    <p class="g-lead">Tu CRM, tus canales y tu agenda, en un solo sistema.</p>
+    <button class="g-int__pause" type="button" aria-pressed="false" aria-controls="int-rows">Pausar carrusel</button>
+  </div>
+  <div class="g-int__rows" id="int-rows">
+    <div class="g-int__lane"><ul class="g-int__track" aria-label="Canales y atención">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>WhatsApp</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg>Instagram</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C5.24 0 0 4.952 0 11.64c0 3.499 1.434 6.521 3.769 8.61a.96.96 0 0 1 .323.683l.065 2.135a.96.96 0 0 0 1.347.85l2.381-1.053a.96.96 0 0 1 .641-.046A13 13 0 0 0 12 23.28c6.76 0 12-4.952 12-11.64S18.76 0 12 0m6.806 7.44c.522-.03.971.567.63 1.094l-4.178 6.457a.707.707 0 0 1-.977.208l-3.87-2.504a.44.44 0 0 0-.49.007l-4.363 3.01c-.637.438-1.415-.317-.995-.966l4.179-6.457a.706.706 0 0 1 .977-.21l3.87 2.505c.15.097.344.094.491-.007l4.362-3.008a.7.7 0 0 1 .364-.13"/></svg>Messenger</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>Telegram</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/></svg>Gmail</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.88 12.04q0 .45-.11.87-.1.41-.33.74-.22.33-.58.52-.37.2-.87.2t-.85-.2q-.35-.21-.57-.55-.22-.33-.33-.75-.1-.42-.1-.86t.1-.87q.1-.43.34-.76.22-.34.59-.54.36-.2.87-.2t.86.2q.35.21.57.55.22.34.31.77.1.43.1.88zM24 12v9.38q0 .46-.33.8-.33.32-.8.32H7.13q-.46 0-.8-.33-.32-.33-.32-.8V18H1q-.41 0-.7-.3-.3-.29-.3-.7V7q0-.41.3-.7Q.58 6 1 6h6.5V2.55q0-.44.3-.75.3-.3.75-.3h12.9q.44 0 .75.3.3.3.3.75V10.85l1.24.72h.01q.1.07.18.18.07.12.07.25zm-6-8.25v3h3v-3zm0 4.5v3h3v-3zm0 4.5v1.83l3.05-1.83zm-5.25-9v3h3.75v-3zm0 4.5v3h3.75v-3zm0 4.5v2.03l2.41 1.5 1.34-.8v-2.73zM9 3.75V6h2l.13.01.12.04v-2.3zM5.98 15.98q.9 0 1.6-.3.7-.32 1.19-.86.48-.55.73-1.28.25-.74.25-1.61 0-.83-.25-1.55-.24-.71-.71-1.24t-1.15-.83q-.68-.3-1.55-.3-.92 0-1.64.3-.71.3-1.2.85-.5.54-.75 1.3-.25.74-.25 1.63 0 .85.26 1.56.26.72.74 1.23.48.52 1.17.81.69.3 1.56.3zM7.5 21h12.39L12 16.08V17q0 .41-.3.7-.29.3-.7.3H7.5zm15-.13v-7.24l-5.9 3.54Z"/></svg>Outlook</li>
+    </ul></div>
+    <div class="g-int__lane"><ul class="g-int__track g-int__track--rev" aria-label="CRM, ventas y pagos">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.164 7.93V5.084a2.198 2.198 0 001.267-1.978v-.067A2.2 2.2 0 0017.238.845h-.067a2.2 2.2 0 00-2.193 2.193v.067a2.196 2.196 0 001.252 1.973l.013.006v2.852a6.22 6.22 0 00-2.969 1.31l.012-.01-7.828-6.095A2.497 2.497 0 104.3 4.656l-.012.006 7.697 5.991a6.176 6.176 0 00-1.038 3.446c0 1.343.425 2.588 1.147 3.607l-.013-.02-2.342 2.343a1.968 1.968 0 00-.58-.095h-.002a2.033 2.033 0 102.033 2.033 1.978 1.978 0 00-.1-.595l.005.014 2.317-2.317a6.247 6.247 0 104.782-11.134l-.036-.005zm-.964 9.378a3.206 3.206 0 113.215-3.207v.002a3.206 3.206 0 01-3.207 3.207z"/></svg>HubSpot</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.006 5.415a4.195 4.195 0 013.045-1.306c1.56 0 2.954.9 3.69 2.205.63-.3 1.35-.45 2.1-.45 2.85 0 5.159 2.34 5.159 5.22s-2.31 5.22-5.176 5.22c-.345 0-.69-.044-1.02-.104a3.75 3.75 0 01-3.3 1.95c-.6 0-1.155-.15-1.65-.375A4.314 4.314 0 018.88 20.4a4.302 4.302 0 01-4.05-2.82c-.27.062-.54.076-.825.076-2.204 0-4.005-1.8-4.005-4.05 0-1.5.811-2.805 2.01-3.51-.255-.57-.39-1.2-.39-1.846 0-2.58 2.1-4.65 4.65-4.65 1.53 0 2.85.705 3.72 1.8"/></svg>Salesforce</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.66 6.897a1.299 1.299 0 0 0-1.205.765l-.642 1.44-.062-.385A1.291 1.291 0 0 0 5.27 7.648l-4.185.678A1.291 1.291 0 0 0 .016 9.807l.678 4.18a1.293 1.293 0 0 0 1.27 1.087c.074 0 .143-.01.216-.017l4.18-.678c.436-.07.784-.351.96-.723l2.933 1.307a1.304 1.304 0 0 0 .988.026c.321-.12.575-.365.716-.678l.28-.629.038.276a1.297 1.297 0 0 0 1.455 1.103l3.712-.501a1.29 1.29 0 0 0 1.03.514h4.236c.713 0 1.29-.58 1.291-1.291V9.545c0-.712-.58-1.291-1.291-1.291h-4.236c-.079 0-.155.008-.23.022a1.309 1.309 0 0 0-.275-.288c-.275-.21-.614-.3-.958-.253l-4.197.571c-.155.021-.3.07-.432.14L9.159 7.01a1.27 1.27 0 0 0-.499-.113zm-.025.705c.077 0 .159.013.24.052l2.971 1.324c-.128.238-.18.508-.142.782l.357 2.596h.002l-.745 1.672a.59.59 0 0 1-.777.296l-3.107-1.385-.004-.041-.41-2.526L8.1 7.95a.589.589 0 0 1 .536-.348zm-3.159.733c.125 0 .245.039.343.112.13.09.21.227.237.382l.234 1.446-.56 1.259a1.27 1.27 0 0 0-.026.987c.12.322.364.575.678.717l.295.131a.585.585 0 0 1-.428.314l-4.185.678a.59.59 0 0 1-.674-.485l-.678-4.18a.588.588 0 0 1 .485-.674l4.185-.678c.03-.004.064-.01.094-.01zm11.705.09a.59.59 0 0 1 .415.173 1.287 1.287 0 0 0-.416.947v4.237c0 .033.003.065.005.097l-3.55.482a.586.586 0 0 1-.66-.502l-.191-1.403.899-2.017a1.29 1.29 0 0 0-.333-1.5l3.754-.51c.026-.004.051-.004.077-.004zm1.3.532h4.227c.326 0 .588.266.588.588v4.237a.589.589 0 0 1-.588.588h-4.237a.564.564 0 0 1-.12-.013c.47-.246.758-.765.684-1.318zm-5.988.309.254.113c.296.133.43.48.296.777l-.432.97-.207-1.465a.58.58 0 0 1 .09-.395zm5.39.538.453 3.325a.583.583 0 0 1-.453.65zM6.496 11.545l.17 1.052a.588.588 0 0 1-.293-.776zm3.985 4.344a.588.588 0 0 0-.612.603c0 .358.244.61.601.61a.582.582 0 0 0 .607-.608c0-.35-.242-.605-.596-.605zm5.545 0a.588.588 0 0 0-.612.603c0 .358.245.61.602.61a.582.582 0 0 0 .606-.608c0-.35-.24-.605-.596-.605zm-8.537.018a.047.047 0 0 0-.048.047v.085c0 .026.021.047.048.047h.52l-.623.9a.052.052 0 0 0-.009.027v.027c0 .026.021.047.048.047h.815a.047.047 0 0 0 .047-.047v-.085a.047.047 0 0 0-.047-.047h-.55l.606-.9a.05.05 0 0 0 .008-.026v-.028a.047.047 0 0 0-.047-.047zm5.303 0a.047.047 0 0 0-.047.047v1.086c0 .026.02.047.047.047h.135a.047.047 0 0 0 .047-.047v-.454h.545v.454c0 .026.02.047.047.047h.134a.047.047 0 0 0 .047-.047v-1.086a.047.047 0 0 0-.047-.047h-.134a.047.047 0 0 0-.047.047v.453h-.545v-.453a.047.047 0 0 0-.047-.047zm-2.324.164c.25 0 .372.194.372.425 0 .219-.109.425-.358.426-.242 0-.375-.197-.375-.419 0-.235.108-.432.36-.432zm5.545 0c.25 0 .372.194.372.425 0 .219-.108.425-.358.426-.242 0-.374-.197-.374-.419 0-.235.108-.432.36-.432z"/></svg>Zoho</li>
+      <li>Pipedrive</li>
+      <li>Kommo</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.1002 15.7957c-1.6015 0-2.8997-1.2983-2.8997-2.8998s1.2983-2.8997 2.8997-2.8997c1.6015 0 2.8998 1.2982 2.8998 2.8997 0 1.5999-1.2979 2.8998-2.8998 2.8998zm0-1.2c.9388.0006 1.7003-.7601 1.7008-1.6989.0004-.9388-.7602-1.7003-1.699-1.7007h-.0018c-.9388.0004-1.6994.7619-1.699 1.7007.0005.9381.761 1.6985 1.699 1.699zm-6.0655 1.2c-1.6014 0-2.8997-1.2983-2.8997-2.8998s1.2983-2.8997 2.8997-2.8997c1.6015 0 2.8998 1.2982 2.8998 2.8997 0 1.5999-1.2999 2.8998-2.8998 2.8998zm0-1.2c.9389.0006 1.7003-.7601 1.7008-1.6989.0005-.9388-.7602-1.7003-1.699-1.7007h-.0018c-.9388.0004-1.6994.7619-1.699 1.7007.0005.9381.761 1.6985 1.699 1.699zM11.865 12.858c0 1.6199-1.2979 2.9378-2.8977 2.9378s-2.8998-1.314-2.8998-2.9358 1.1799-2.8597 2.8998-2.8597c.6359 0 1.2239.134 1.6998.484v-1.68a.6.6 0 0 1 1.2 0v4.0537h-.002zm-2.8977 1.7399c.9388.0005 1.7002-.7602 1.7007-1.699.0005-.9388-.7602-1.7003-1.699-1.7007h-.0017c-.9389.0004-1.6995.7619-1.699 1.7007.0004.9381.7608 1.6985 1.699 1.699zm-6.0675 1.1979C1.2983 15.7957 0 14.4974 0 12.8959s1.2983-2.8997 2.8998-2.8997 2.8997 1.2982 2.8997 2.8997c0 1.5999-1.2999 2.8998-2.8997 2.8998zm0-1.2c.9388.0006 1.7002-.7601 1.7007-1.699.0005-.9387-.7602-1.7002-1.699-1.7006h-.0017c-.9388.0004-1.6995.7619-1.699 1.7007.0004.9381.7608 1.6985 1.699 1.699z"/></svg>Odoo</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg>Shopify</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg>Stripe</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.115 16.479a.93.927 0 0 1-.939-.886c-.002-.042-.006-.155-.103-.155-.04 0-.074.023-.113.059-.112.103-.254.206-.46.206a.816.814 0 0 1-.305-.066c-.535-.214-.542-.578-.521-.725.006-.038.007-.08-.02-.11l-.032-.03h-.034c-.027 0-.055.012-.093.039a.788.786 0 0 1-.454.16.7.699 0 0 1-.253-.05c-.708-.27-.65-.928-.617-1.126.005-.041-.005-.072-.03-.092l-.05-.04-.047.043a.728.726 0 0 1-.505.203.73.728 0 0 1-.732-.725c0-.4.328-.722.732-.722.364 0 .675.27.721.63l.026.195.11-.165c.01-.018.307-.46.852-.46.102 0 .21.016.316.05.434.13.508.52.519.68.008.094.075.1.09.1.037 0 .064-.024.083-.045a.746.744 0 0 1 .54-.225c.128 0 .263.03.402.09.69.293.379 1.158.374 1.167-.058.144-.061.207-.005.244l.027.013h.02c.03 0 .07-.014.134-.035.093-.032.235-.08.367-.08a.944.942 0 0 1 .94.93.936.934 0 0 1-.94.928zm7.302-4.171c-1.138-.98-3.768-3.24-4.481-3.77-.406-.302-.685-.462-.928-.533a1.559 1.554 0 0 0-.456-.07c-.182 0-.376.032-.58.095-.46.145-.918.505-1.362.854l-.023.018c-.414.324-.84.66-1.164.73a1.986 1.98 0 0 1-.43.049c-.362 0-.687-.104-.81-.258-.02-.025-.007-.066.04-.125l.008-.008 1-1.067c.783-.774 1.525-1.506 3.23-1.545h.085c1.062 0 2.12.469 2.24.524a7.03 7.03 0 0 0 3.056.724c1.076 0 2.188-.263 3.354-.795a9.135 9.11 0 0 0-.405-.317c-1.025.44-2.003.66-2.946.66-.962 0-1.925-.229-2.858-.68-.05-.022-1.22-.567-2.44-.57-.032 0-.065 0-.096.002-1.434.033-2.24.536-2.782.976-.528.013-.982.138-1.388.25-.361.1-.673.186-.979.185-.125 0-.35-.01-.37-.012-.35-.01-2.115-.437-3.518-.962-.143.1-.28.203-.415.31 1.466.593 3.25 1.053 3.812 1.089.157.01.323.027.491.027.372 0 .744-.103 1.104-.203.213-.059.446-.123.692-.17l-.196.194-1.017 1.087c-.08.08-.254.294-.14.557a.705.703 0 0 0 .268.292c.243.162.677.27 1.08.271.152 0 .297-.015.43-.044.427-.095.874-.448 1.349-.82.377-.296.913-.672 1.323-.782a1.494 1.49 0 0 1 .37-.05.611.61 0 0 1 .095.005c.27.034.533.125 1.003.472.835.62 4.531 3.815 4.566 3.846.002.002.238.203.22.537-.007.186-.11.352-.294.466a.902.9 0 0 1-.484.15.804.802 0 0 1-.428-.124c-.014-.01-1.28-1.157-1.746-1.543-.074-.06-.146-.115-.22-.115a.122.122 0 0 0-.096.045c-.073.09.01.212.105.294l1.48 1.47c.002 0 .184.17.204.395.012.244-.106.447-.35.606a.957.955 0 0 1-.526.171.766.764 0 0 1-.42-.127l-.214-.206a21.035 20.978 0 0 0-1.08-1.009c-.072-.058-.148-.112-.221-.112a.127.127 0 0 0-.094.038c-.033.037-.056.103.028.212a.698.696 0 0 0 .075.083l1.078 1.198c.01.01.222.26.024.511l-.038.048a1.18 1.178 0 0 1-.1.096c-.184.15-.43.164-.527.164a.8.798 0 0 1-.147-.012c-.106-.018-.178-.048-.212-.089l-.013-.013c-.06-.06-.602-.609-1.054-.98-.059-.05-.133-.11-.21-.11a.128.128 0 0 0-.096.042c-.09.096.044.24.1.293l.92 1.003a.204.204 0 0 1-.033.062c-.033.044-.144.155-.479.196a.91.907 0 0 1-.122.007c-.345 0-.712-.164-.902-.264a1.343 1.34 0 0 0 .13-.576 1.368 1.365 0 0 0-1.42-1.357c.024-.342-.025-.99-.697-1.274a1.455 1.452 0 0 0-.575-.125c-.146 0-.287.025-.42.075a1.153 1.15 0 0 0-.671-.564 1.52 1.515 0 0 0-.494-.085c-.28 0-.537.08-.767.242a1.168 1.165 0 0 0-.903-.43 1.173 1.17 0 0 0-.82.335c-.287-.217-1.425-.93-4.467-1.613a17.39 17.344 0 0 1-.692-.189 4.822 4.82 0 0 0-.077.494l.67.157c3.108.682 4.136 1.391 4.309 1.525a1.145 1.142 0 0 0-.09.442 1.16 1.158 0 0 0 1.378 1.132c.096.467.406.821.879 1.003a1.165 1.162 0 0 0 .415.08c.09 0 .179-.012.266-.034.086.22.282.493.722.668a1.233 1.23 0 0 0 .457.094c.122 0 .241-.022.355-.063a1.373 1.37 0 0 0 1.269.841c.37.002.726-.147.985-.41.221.121.688.341 1.163.341.06 0 .118-.002.175-.01.47-.059.689-.24.789-.382a.571.57 0 0 0 .048-.078c.11.032.234.058.373.058.255 0 .501-.086.75-.265.244-.174.418-.424.444-.637v-.01c.083.017.167.026.251.026.265 0 .527-.082.773-.242.48-.31.562-.715.554-.98a1.28 1.279 0 0 0 .978-.194 1.04 1.04 0 0 0 .502-.808 1.088 1.085 0 0 0-.16-.653c.804-.342 2.636-1.003 4.795-1.483a4.734 4.721 0 0 0-.067-.492 27.742 27.667 0 0 0-5.049 1.62zm5.123-.763c0 4.027-5.166 7.293-11.537 7.293-6.372 0-11.538-3.266-11.538-7.293 0-4.028 5.165-7.293 11.539-7.293 6.371 0 11.537 3.265 11.537 7.293zm.46.004c0-4.272-5.374-7.755-12-7.755S.002 7.277.002 11.55L0 12.004c0 4.533 4.695 8.203 11.999 8.203 7.347 0 12-3.67 12-8.204z"/></svg>Mercado Pago</li>
+    </ul></div>
+    <div class="g-int__lane"><ul class="g-int__track" aria-label="Trabajo y agenda">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.316 5.684H24v12.632h-5.684V5.684zM5.684 24h12.632v-5.684H5.684V24zM18.316 5.684V0H1.895A1.894 1.894 0 0 0 0 1.895v16.421h5.684V5.684h12.632zm-7.207 6.25v-.065c.272-.144.5-.349.687-.617s.279-.595.279-.982c0-.379-.099-.72-.3-1.025a2.05 2.05 0 0 0-.832-.714 2.703 2.703 0 0 0-1.197-.257c-.6 0-1.094.156-1.481.467-.386.311-.65.671-.793 1.078l1.085.452c.086-.249.224-.461.413-.633.189-.172.445-.257.767-.257.33 0 .602.088.816.264a.86.86 0 0 1 .322.703c0 .33-.12.589-.36.778-.24.19-.535.284-.886.284h-.567v1.085h.633c.407 0 .748.109 1.02.327.272.218.407.499.407.843 0 .336-.129.614-.387.832s-.565.327-.924.327c-.351 0-.651-.103-.897-.311-.248-.208-.422-.502-.521-.881l-1.096.452c.178.616.505 1.082.977 1.401.472.319.984.478 1.538.477a2.84 2.84 0 0 0 1.293-.291c.382-.193.684-.458.902-.794.218-.336.327-.72.327-1.149 0-.429-.115-.797-.344-1.105a2.067 2.067 0 0 0-.881-.689zm2.093-1.931l.602.913L15 10.045v5.744h1.187V8.446h-.827l-2.158 1.557zM22.105 0h-3.289v5.184H24V1.895A1.894 1.894 0 0 0 22.105 0zm-3.289 23.5l4.684-4.684h-4.684V23.5zM0 22.105C0 23.152.848 24 1.895 24h3.289v-5.184H0v3.289z"/></svg>Google Calendar</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.655 14.262c.281 0 .557.023.828.064 0 .005-.005.01-.005.014-.105.267-.234.534-.381.786l-1.219 2.106c-1.112 1.936-3.177 3.127-5.411 3.127h-2.432c-2.23 0-4.294-1.191-5.412-3.127l-1.218-2.106a6.251 6.251 0 0 1 0-6.252l1.218-2.106C6.736 4.832 8.8 3.641 11.035 3.641h2.432c2.23 0 4.294 1.191 5.411 3.127l1.219 2.106c.147.252.271.519.381.786 0 .004.005.009.005.014-.267.041-.543.064-.828.064-1.816 0-2.501-.607-3.291-1.306-.764-.676-1.711-1.517-3.44-1.517h-1.029c-1.251 0-2.387.455-3.2 1.278-.796.805-1.233 1.904-1.233 3.099v1.411c0 1.196.437 2.295 1.233 3.099.813.823 1.949 1.278 3.2 1.278h1.034c1.729 0 2.676-.841 3.439-1.517.791-.703 1.471-1.306 3.287-1.301Zm.005-3.237c.399 0 .794-.036 1.179-.11-.002-.004-.002-.01-.002-.014-.073-.414-.193-.823-.349-1.218.731-.12 1.407-.396 1.986-.819 0-.004-.005-.013-.005-.018-.331-1.085-.832-2.101-1.489-3.03-.649-.915-1.435-1.719-2.331-2.395-1.867-1.398-4.088-2.138-6.428-2.138-1.448 0-2.855.28-4.175.841-1.273.543-2.423 1.315-3.407 2.299S2.878 6.552 2.341 7.83c-.557 1.324-.842 2.726-.842 4.175 0 1.448.281 2.855.842 4.174.542 1.274 1.314 2.423 2.298 3.407s2.129 1.761 3.407 2.299c1.324.556 2.727.841 4.175.841 2.34 0 4.561-.74 6.428-2.137a10.815 10.815 0 0 0 2.331-2.396c.652-.929 1.158-1.949 1.489-3.03 0-.004.005-.014.005-.018-.579-.423-1.255-.699-1.986-.819.161-.395.276-.804.349-1.218.005-.009.005-.014.005-.023.869.166 1.692.506 2.404 1.035.685.505.552 1.075.446 1.416C22.184 20.437 17.619 24 12.221 24c-6.625 0-12-5.375-12-12s5.37-12 12-12c5.398 0 9.963 3.563 11.471 8.464.106.341.239.915-.446 1.421-.717.529-1.535.873-2.404 1.034.128.716.128 1.45 0 2.166-.387-.074-.782-.11-1.182-.11-4.184 0-3.968 2.823-6.736 2.823h-1.029c-1.899 0-3.15-1.357-3.15-3.095v-1.411c0-1.738 1.251-3.094 3.15-3.094h1.034c2.768 0 2.552 2.823 6.731 2.827Z"/></svg>Calendly</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.318 12.545H7.91v-1.909h3.41v1.91zM14.728 0v6h6l-6-6zm1.363 10.636h-3.41v1.91h3.41v-1.91zm0 3.273h-3.41v1.91h3.41v-1.91zM20.727 6.5v15.864c0 .904-.732 1.636-1.636 1.636H4.909a1.636 1.636 0 0 1-1.636-1.636V1.636C3.273.732 4.005 0 4.909 0h9.318v6.5h6.5zm-3.273 2.773H6.545v7.909h10.91v-7.91zm-6.136 4.636H7.91v1.91h3.41v-1.91z"/></svg>Google Sheets</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 1.5q.41 0 .7.3.3.29.3.7v19q0 .41-.3.7-.29.3-.7.3H7q-.41 0-.7-.3-.3-.29-.3-.7V18H1q-.41 0-.7-.3-.3-.29-.3-.7V7q0-.41.3-.7Q.58 6 1 6h5V2.5q0-.41.3-.7.29-.3.7-.3zM6 13.28l1.42 2.66h2.14l-2.38-3.87 2.34-3.8H7.46l-1.3 2.4-.05.08-.04.09-.64-1.28-.66-1.29H2.59l2.27 3.82-2.48 3.85h2.16zM14.25 21v-3H7.5v3zm0-4.5v-3.75H12v3.75zm0-5.25V7.5H12v3.75zm0-5.25V3H7.5v3zm8.25 15v-3h-6.75v3zm0-4.5v-3.75h-6.75v3.75zm0-5.25V7.5h-6.75v3.75zm0-5.25V3h-6.75v3Z"/></svg>Excel</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>Slack</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.157 0A4.151 4.151 0 0 0 0 4.161v15.678A4.151 4.151 0 0 0 4.157 24h15.682A4.152 4.152 0 0 0 24 19.839V4.161A4.152 4.152 0 0 0 19.839 0H4.157Zm10.61 8.761h.03a.577.577 0 0 1 .23.038.585.585 0 0 1 .201.124.63.63 0 0 1 .162.431.612.612 0 0 1-.162.435.58.58 0 0 1-.201.128.58.58 0 0 1-.23.042.529.529 0 0 1-.235-.042.585.585 0 0 1-.332-.328.559.559 0 0 1-.038-.235.613.613 0 0 1 .17-.431.59.59 0 0 1 .405-.162Zm2.853 1.572c.03.004.061.004.095.004.325-.011.646.064.937.219.238.144.431.355.552.609.128.279.189.582.185.888v.193a2 2 0 0 1 0 .219h-2.498c.003.227.075.45.204.642a.78.78 0 0 0 .646.265.714.714 0 0 0 .484-.136.642.642 0 0 0 .23-.318l.915.257a1.398 1.398 0 0 1-.28.537c-.14.159-.321.284-.521.355a2.234 2.234 0 0 1-.836.136 1.923 1.923 0 0 1-1.001-.245 1.618 1.618 0 0 1-.665-.703 2.221 2.221 0 0 1-.227-1.036 1.95 1.95 0 0 1 .48-1.398 1.9 1.9 0 0 1 1.3-.488Zm-9.607.023c.162.004.325.026.48.079.207.065.4.174.563.314.26.302.393.692.366 1.088v2.276H8.53l-.109-.711h-.065c-.064.163-.155.31-.272.439a1.122 1.122 0 0 1-.374.264 1.023 1.023 0 0 1-.453.083 1.334 1.334 0 0 1-.866-.264.965.965 0 0 1-.329-.801.993.993 0 0 1 .076-.431 1.02 1.02 0 0 1 .242-.363 1.478 1.478 0 0 1 1.043-.303h.952v-.181a.696.696 0 0 0-.136-.454.553.553 0 0 0-.438-.154.695.695 0 0 0-.378.086.48.48 0 0 0-.193.254l-.99-.144a1.26 1.26 0 0 1 .257-.563c.14-.174.321-.302.533-.378.261-.091.54-.136.82-.129.053-.003.106-.007.163-.007Zm4.384.007c.174 0 .347.038.506.114.182.083.34.211.458.374.257.423.377.911.351 1.406a2.53 2.53 0 0 1-.355 1.448 1.148 1.148 0 0 1-1.009.517c-.204 0-.401-.045-.582-.136a1.052 1.052 0 0 1-.48-.457 1.298 1.298 0 0 1-.114-.234h-.045l.004 1.784h-1.059v-4.713h.904l.117.805h.057c.068-.208.177-.401.328-.56a1.129 1.129 0 0 1 .843-.344h.076v-.004Zm7.559.084h.903l.113.805h.053a1.37 1.37 0 0 1 .235-.484.813.813 0 0 1 .313-.242.82.82 0 0 1 .39-.076h.234v1.051h-.401a.662.662 0 0 0-.313.008.623.623 0 0 0-.272.155.663.663 0 0 0-.174.26.683.683 0 0 0-.027.314v1.875h-1.054v-3.666Zm-17.515.003h3.262v.896L3.73 13.104l.034.113h1.973l.042.9H2.4v-.9l1.931-1.754-.045-.117H2.441v-.896Zm11.815 0h1.055v3.659h-1.055V10.45Zm3.443.684.019.016a.69.69 0 0 0-.351.045.756.756 0 0 0-.287.204c-.11.155-.174.336-.189.522h1.545c-.034-.526-.257-.787-.74-.787h.003Zm-5.718.163c-.026 0-.057 0-.083.004a.78.78 0 0 0-.31.053.746.746 0 0 0-.257.189 1.016 1.016 0 0 0-.204.695v.064c-.015.257.057.507.204.711a.634.634 0 0 0 .253.196.638.638 0 0 0 .314.061.644.644 0 0 0 .578-.265c.14-.223.204-.48.189-.74a1.216 1.216 0 0 0-.181-.711.677.677 0 0 0-.503-.257Zm-4.509 1.266a.464.464 0 0 0-.268.102.373.373 0 0 0-.114.276c0 .053.008.106.027.155a.375.375 0 0 0 .087.132.576.576 0 0 0 .397.11v.004a.863.863 0 0 0 .563-.182.573.573 0 0 0 .211-.457v-.14h-.903Z"/></svg>Zapier</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.38 3.498c-.27 0-.511.19-.566.465L9.85 18.986a.578.578 0 0 0 .453.678l4.095.826a.58.58 0 0 0 .682-.455l2.963-15.021a.578.578 0 0 0-.453-.678l-4.096-.826a.589.589 0 0 0-.113-.012zm-5.876.098a.576.576 0 0 0-.516.318L.062 17.697a.575.575 0 0 0 .256.774l3.733 1.877a.578.578 0 0 0 .775-.258l6.926-13.781a.577.577 0 0 0-.256-.776L7.762 3.658a.571.571 0 0 0-.258-.062zm11.74.115a.576.576 0 0 0-.576.576v15.426c0 .318.258.578.576.578h4.178a.58.58 0 0 0 .578-.578V4.287a.578.578 0 0 0-.578-.576Z"/></svg>Make</li>
+    </ul></div>
+  </div>
+  <p class="g-int__note">Son herramientas con las que se conecta, no clientes. ¿No ves la tuya? La revisamos en el <a href="#precios">diagnóstico de procesos</a> de tu mes 1.</p>
+</section>
+<script>
+/* Repite cada carril 4 veces para que cubra pantallas anchas sin cortes; las copias no las lee el lector de pantalla */
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.g-int__track').forEach(function(t){
+    var items = Array.prototype.slice.call(t.children);
+    for (var k = 0; k < 3; k++){
+      items.forEach(function(li){
+        var c = li.cloneNode(true); c.setAttribute('aria-hidden','true'); t.appendChild(c);
+      });
+    }
+    /* Misma velocidad en todos los carriles (~40 px/s), sin importar cuántas marcas tenga cada uno */
+    t.style.setProperty('--dur', Math.round(t.scrollWidth / 2 / 40) + 's');
+  });
+})();
+</script>
+
+<!-- ======================= 7b2. QUIÉN ESTÁ DETRÁS ======================= -->
+<div class="g-band">
+<section class="g-sec" id="quien" aria-label="Quién está detrás">
+  <div class="g-who">
+    <div class="g-rev">
+      <p class="g-eyebrow">Quién está detrás</p>
+      <blockquote>“Tu equipo no necesita más horas. Necesita dejar de perder lo que ya ganó. <em>Dame 30 minutos y te muestro dónde.</em>”</blockquote>
+      <p class="g-who__by"><b>David Arias</b>Fundador y CEO de Grobi</p>
+      <div class="g-midcta"><a class="g-link" href="https://wa.me/525530479892?text=Hola%20David%2C%20quiero%20agendar%2030%20minutos%20para%20revisar%20mi%20proceso%20comercial." target="_blank" rel="noopener">Agenda 30 minutos con David <span aria-hidden="true">→</span></a><span>Por WhatsApp, si ya lo tienes claro.</span></div>
+    </div>
+    <figure class="g-who__img g-rev" style="--i:1"><img src="img/ceo-camisa-640.jpg" srcset="img/ceo-camisa-640.jpg 640w, img/ceo-camisa-1100.jpg 1100w" sizes="(min-width:860px) 420px, min(420px, calc(100vw - 32px))" width="640" height="850" alt="David Arias, fundador y CEO de Grobi" loading="lazy"></figure>
+  </div>
+</section>
+</div>
+
+<!-- ======================= AUTODIAGNÓSTICO (encabezado; el quiz sigue igual) ======================= -->
+<div class="g-band g-band--soft">
+<section class="g-diaghead" id="autodiagnostico">
+  <p class="g-eyebrow">Autodiagnóstico gratis</p>
+  <h2 class="g-h2">¿Cuánto se te está yendo hoy?</h2>
+  <p class="g-sub">Gratis, en 3-4 minutos y sin pedir contacto hasta el final.</p>
+  <ol class="g-steps" aria-label="Cómo avanzas con Grobi">
+    <li>Autodiagnóstico <span class="g-tag g-tag--free">Gratis</span></li>
+    <li>Mes 1: diagnóstico + configuración <span class="g-tag g-tag--paid">$0</span></li>
+    <li>Desde el mes 2: tu plan <span class="g-tag g-tag--paid">Con garantía</span></li>
+  </ol>
+</section>
+
+<!-- ======================= APP: AUTODIAGNÓSTICO ======================= -->
+<div class="app-shell" id="app">
+
+  <section id="screen-hero">
+    <div class="card" style="display:flex; flex-direction:column; gap:20px">
+      <p class="eyebrow mono">Grobi · Autodiagnóstico comercial</p>
+      <h2 style="font-size:28px; font-weight:800; letter-spacing:-0.02em; line-height:1.2; color:var(--ink)">Veamos tus números</h2>
+      <p style="font-size:16px; color:var(--muted)">Preguntas sobre cómo captas, vendes y retienes hoy, más tus propios números. Al final calculamos, con esos números, lo que podrías estar perdiendo si nada cambia.</p>
+      <button class="btn btn-primary" id="btn-start" type="button">Empezar autodiagnóstico</button>
+      <p style="font-size:13px; color:var(--muted); text-align:center">Toma unos 3-4 minutos</p>
+    </div>
+  </section>
+
+  <section id="screen-quiz" hidden style="display:flex; flex-direction:column; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <div class="progress-label mono"><span id="progress-step-label">Paso 1</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="card" id="quiz-step-host" style="display:flex; flex-direction:column; gap:28px"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="btn-back" type="button">Atrás</button>
+      <button class="btn btn-primary" id="btn-next" type="button" disabled>Siguiente</button>
+    </div>
+  </section>
+
+  <section id="screen-results" hidden style="display:flex; flex-direction:column; gap:20px">
+    <div class="card" style="display:flex; flex-direction:column; gap:16px">
+      <p class="eyebrow">Tu punto de partida</p>
+      <h2 style="font-size:24px; font-weight:800; letter-spacing:-0.02em; line-height:1.3; color:var(--ink)" id="results-headline"></h2>
+      <p id="results-body" style="font-size:16px; color:var(--muted)"></p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px">
+      <p class="eyebrow">Esto no es a futuro</p>
+      <h2 style="font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)">Esto es lo que hoy se queda en el camino.</h2>
+      <p style="font-size:14px; color:var(--muted)">Con tus propios números — no una proyección, no un supuesto.</p>
+    </div>
+
+    <div class="stat-card" id="stat-acquisition"></div>
+    <p id="proof-acquisition" class="badge"><span class="dot"></span><span>Un estudio de MIT e InsideSales encontró que contactar a un lead en los primeros 5 minutos, en lugar de 30, multiplica por 100 la probabilidad de conectar con él.</span></p>
+
+    <div class="stat-card" id="stat-churn"></div>
+    <p id="proof-churn" class="badge"><span class="dot"></span><span>Según Harvard Business Review, retener a un cliente que ya tienes cuesta entre 5 y 25 veces menos que conseguir uno nuevo.</span></p>
+
+    <div class="stat-card" id="stat-cac" hidden></div>
+    <div class="stat-card" id="stat-ltv" hidden></div>
+    <div class="stat-card" id="stat-team" hidden></div>
+
+    <div class="stat-card dark" id="stat-combined" hidden></div>
+    <p id="combined-note" class="badge" hidden><span class="dot"></span><span></span></p>
+
+    <div class="badge"><span class="dot"></span><span>Estos números parten de tus propias respuestas y de una fórmula simple, no de tu CRM. No son una garantía — son la señal de alarma que justifica revisar los datos reales.</span></div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px">
+      <p class="eyebrow">La otra cara</p>
+      <h2 style="font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)">Esto es lo que podrías recuperar con un proceso sistematizado</h2>
+      <p style="font-size:14px; color:var(--muted)">Mueve las barras a una meta que te parezca realista para tu negocio. No es una promesa de resultado — es la misma fórmula de arriba, aplicada al revés.</p>
+    </div>
+
+    <div class="card" style="display:flex; flex-direction:column; gap:24px">
+      <div class="slider-row">
+        <p class="question-title" style="font-size:16px">Meta: % de leads contactados a tiempo</p>
+        <p class="slider-value mono" id="goal-contacted-value">0%</p>
+        <input type="range" id="goal-contacted" min="0" max="100" step="5">
+      </div>
+      <div class="slider-row">
+        <p class="question-title" style="font-size:16px">Meta: % de cancelación</p>
+        <p class="slider-value mono" id="goal-churn-value">0%</p>
+        <input type="range" id="goal-churn" min="0" max="100" step="5">
+      </div>
+    </div>
+
+    <div class="stat-card dark" id="stat-potential"></div>
+
+    <div class="card" style="display:flex; flex-direction:column; gap:12px">
+      <p id="potential-body" style="font-size:16px"></p>
+      <p id="potential-proof" class="badge"><span class="dot"></span><span>Bain & Company encontró que un aumento de 5 puntos en la tasa de retención puede elevar las utilidades entre 25% y 95%, según la industria.</span></p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px">
+      <p class="eyebrow">Así te acompañamos</p>
+      <h2 style="font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)">Cuatro etapas, una decisión en cada una</h2>
+    </div>
+
+    <div class="card" style="display:flex; flex-direction:column; gap:22px">
+      <div class="process-step">
+        <p class="process-num">01</p>
+        <div><h3>Mes 1: diagnóstico de procesos</h3><p>Sin costo. Mapeamos tu embudo real, medimos dónde se pierde y dejamos el sistema configurado.</p></div>
+      </div>
+      <div class="process-step">
+        <p class="process-num">02</p>
+        <div><h3>El sistema entra en ventas</h3><p>Contacta, califica, agenda y da seguimiento a cada lead. Garantía del mes 2: si un lead no recibe contacto a tiempo, te devolvemos ese pago.</p></div>
+      </div>
+      <div class="process-step">
+        <p class="process-num">03</p>
+        <div><h3>Retención proactiva</h3><p>Detecta señales de riesgo de cancelación antes de que pase, y avisa a tu equipo a tiempo para actuar.</p></div>
+      </div>
+      <div class="process-step">
+        <p class="process-num">04</p>
+        <div><h3>Optimización continua</h3><p>Ajustamos el sistema cada mes con datos reales — no con supuestos.</p></div>
+      </div>
+    </div>
+
+    <div class="stat-card dark">
+      <p id="cta-line" style="font-size:19px; font-weight:800; color:var(--accent); line-height:1.3"></p>
+    </div>
+
+    <button class="btn btn-primary" id="btn-to-contact" type="button">Sí, quiero lograr esto</button>
+  </section>
+
+  <section id="screen-contact" hidden style="display:flex; flex-direction:column; gap:20px">
+    <div class="card" style="display:flex; flex-direction:column; gap:18px">
+      <p class="eyebrow">Último paso</p>
+      <h2 style="font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)">¿A quién le preparamos el diagnóstico?</h2>
+      <div class="field"><label for="f-nombre">Nombre</label><input id="f-nombre" type="text" autocomplete="name"></div>
+      <div class="field"><label for="f-empresa">Empresa</label><input id="f-empresa" type="text" autocomplete="organization"></div>
+      <div class="field"><label for="f-rol">Rol en la empresa</label><input id="f-rol" type="text"></div>
+      <div class="field"><label for="f-email">Correo</label><input id="f-email" type="email" autocomplete="email"></div>
+      <div class="field"><label for="f-whatsapp">WhatsApp</label><input id="f-whatsapp" type="tel" autocomplete="tel"></div>
+    </div>
+    <button class="btn btn-primary" id="btn-to-final" type="button" disabled>Generar mi resumen</button>
+    <!-- Aviso de privacidad simplificado (art. 16, fr. II LFPDPPP): responsable, datos, finalidades y cómo limitar el uso -->
+    <p class="privacy-note">Grobi usará estos datos para enviarte tu resumen y contactarte para agendar tu mes 1. Si no quieres recibir contenido comercial, pídelo por WhatsApp. Consulta el <a href="privacidad.html" target="_blank" rel="noopener">aviso de privacidad integral</a>.</p>
+  </section>
+
+  <section id="screen-final" hidden style="display:flex; flex-direction:column; gap:20px">
+    <div class="card" style="display:flex; flex-direction:column; gap:16px">
+      <p class="eyebrow">Tu resumen está listo</p>
+      <h2 style="font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--ink)">Envía tu resumen para agendar tu mes 1 sin costo</h2>
+      <div class="summary-box" id="summary-text"></div>
+      <button class="btn btn-primary" id="btn-send-whatsapp" type="button">Enviar por WhatsApp</button>
+      <button class="btn btn-ghost" id="btn-copy-summary" type="button">Copiar resumen</button>
+    </div>
+    <!-- Visible cuando GROVA_EMAIL tiene valor. -->
+    <div class="card" id="email-card" hidden style="display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:13px; color:var(--muted)">¿Prefieres correo? Copia el resumen de arriba y envíalo a <span class="mono" id="contact-email-display"></span></p>
+    </div>
+  </section>
+
+</div>
+
+</div>
+
+<!-- ======================= 7c. PRECIOS =======================
+     Cifras exactas de CLAUDE.md / precios-referencia.html. No redondear.
+     Orden Plan 1 → 2 → 3, cercanía de precio 1–2 y badge en el 3: deliberados (efecto señuelo). -->
+<section class="g-sec" id="precios" aria-labelledby="precios-t">
+  <div class="g-head">
+    <div>
+      <p class="g-eyebrow">Precios</p>
+      <h2 class="g-h2" id="precios-t">Tu primer mes va por nuestra cuenta.</h2>
+    </div>
+    <p class="g-lead">Pagas desde el mes 2, solo si decides continuar.</p>
+  </div>
+
+  <div class="g-offer g-rev">
+    <div>
+      <span class="g-offer__tag">Mes 1 · oferta de lanzamiento</span>
+      <h3>Diagnóstico de procesos + configuración</h3>
+      <ul>
+        <li>Mapa de tu proceso comercial (BPMN)</li>
+        <li>Estudio de vulnerabilidades</li>
+        <li>Análisis de oportunidades</li>
+        <li>Roadmap técnico de implementación</li>
+        <li>Sistema configurado y midiendo</li>
+      </ul>
+    </div>
+    <div class="g-offer__price">
+      <div class="g-offer__n">$0</div>
+      <p class="g-offer__s">Oferta de lanzamiento: la sostenemos mientras armamos los primeros casos.</p>
+    </div>
+  </div>
+
+  <div class="g-guar g-rev" style="--i:1">
+    <span class="g-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.8-3 8.8-7 10-4-1.2-7-5.2-7-10V6l7-3z"/><path d="M9 12l2 2 4-4.5"/></svg></span>
+    <div>
+      <h3>Garantía del mes 2</h3>
+      <p>Si el sistema no cumple lo acordado por escrito, te devolvemos el 100% del mes 2. Lo mide la plataforma, no nosotros.</p>
+      <ul class="g-guar__ok" aria-label="Qué se mide">
+        <li>Adquirir: primer contacto a tiempo</li>
+        <li>Retener: cada contacto en su fecha</li>
+        <li>Hora registrada en la plataforma</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="g-plans__h">
+    <h3>Tres formas de implementar el sistema.</h3>
+    <p class="g-lead">El mes 1 es igual en los tres. La mensualidad aplica desde el mes 2.</p>
+    <p class="g-plans__ref">Como referencia: un ejecutivo de ventas gana en promedio <b>$12,759 MXN al mes</b> en México. <a href="https://mx.indeed.com/career/ejecutivo-de-ventas/salaries" target="_blank" rel="noopener">Indeed México, nov. 2026</a></p>
+  </div>
+
+  <p class="g-plans__hint" aria-hidden="true">Desliza: 3 planes, el 3.º es el recomendado →</p>
+  <ul class="g-plans">
+    <li class="g-plan g-rev" style="--i:0">
+      <span class="g-plan__k">Canal comercial</span>
+      <h4>Adquirir y Convertir</h4>
+      <p class="g-plan__d">Para quien genera leads y quiere responder y dar seguimiento a cada uno.</p>
+      <div class="g-plan__p">
+        <div class="g-plan__v">$8,500 <small>MXN + IVA / mes</small></div>
+        <p class="g-plan__u">Desde el mes 2 · <span>$9,860 MXN</span> con IVA</p>
+      </div>
+      <ul>
+        <li>Respuesta instantánea 24/7 en WhatsApp, Instagram, Facebook y formularios web</li>
+        <li>Calificación automática del lead</li>
+        <li>Agendamiento directo en tu calendario</li>
+        <li>Seguimiento automático a quien no agenda de inmediato</li>
+        <li>Escalamiento a tu equipo comercial cuando la conversación lo requiere</li>
+        <li>Gestión de plantillas de WhatsApp incluida</li>
+        <li>Visibilidad de % contestación, % citas y % revenue para dirección</li>
+      </ul>
+    </li>
+    <li class="g-plan g-rev" style="--i:1">
+      <span class="g-plan__k">Canal de servicio al cliente</span>
+      <h4>Retener y Expandir</h4>
+      <p class="g-plan__d">Para quien ya capta bien y quiere acompañar al cliente después de la venta.</p>
+      <div class="g-plan__p">
+        <div class="g-plan__v">$9,200 <small>MXN + IVA / mes</small></div>
+        <p class="g-plan__u">Desde el mes 2 · <span>$10,672 MXN</span> con IVA</p>
+      </div>
+      <ul>
+        <li><b>Campaña trimestral de reactivación, hecha por el equipo de Grobi</b></li>
+        <li>Cadencia de seguimiento post-venta (día 7, 20, 45, 90, 120)</li>
+        <li>Escalamiento a servicio al cliente ante insatisfacción u oportunidad de venta adicional</li>
+        <li>Asignación de cuentas por carga, mismo ejecutivo da seguimiento siempre</li>
+        <li>Visibilidad de retención y expansión para dirección</li>
+      </ul>
+    </li>
+    <li class="g-plan g-plan--rec g-rev" style="--i:2">
+      <span class="g-plan__badge">Recomendado</span>
+      <span class="g-plan__k">Sistema completo</span>
+      <h4>Revenue &amp; Customer Lifecycle System</h4>
+      <p class="g-plan__d">Los dos motores en un solo circuito: marketing, ventas y servicio conectados.</p>
+      <div class="g-plan__p">
+        <p class="g-plan__was"><s>$17,700 MXN</s> por separado</p>
+        <div class="g-plan__v">$14,500 <small>MXN + IVA / mes</small></div>
+        <p class="g-plan__u">Desde el mes 2 · <span>$16,820 MXN</span> con IVA</p>
+        <span class="g-plan__save">$3,200 MXN menos al mes · 18%</span>
+      </div>
+      <ul>
+        <li>Todo lo de Adquirir y Convertir</li>
+        <li>Todo lo de Retener y Expandir, incluida la campaña trimestral de reactivación</li>
+        <li>Circuito cerrado entre marketing, ventas y servicio</li>
+        <li>Capacitación a tu equipo comercial en la metodología de diagnóstico</li>
+        <li>Soporte prioritario y revisión trimestral de la hoja de ruta</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="g-plans__dots" role="group" aria-label="Elegir plan"><button type="button" aria-label="Plan 1: Adquirir y Convertir" aria-current="true"></button><button type="button" aria-label="Plan 2: Retener y Expandir"></button><button type="button" aria-label="Plan 3: Revenue &amp; Customer Lifecycle System, recomendado"></button></div>
+
+  <div class="g-plans__foot">
+    <button class="g-btn" id="btn-pricing-cta" type="button">Haz tu autodiagnóstico gratis <span aria-hidden="true">→</span></button>
+    <p class="g-plans__note">MXN antes de IVA. Sin plazo forzoso: el mes en curso se cobra completo. Oferta de lanzamiento, no precio permanente. <a href="terminos.html">Términos</a>.</p>
+  </div>
+</section>
+
+<!-- ======================= 8. PREGUNTAS FRECUENTES ======================= -->
+<section class="g-sec" id="faq">
+  <div class="g-faq">
+    <div class="g-faq__aside">
+      <p class="g-eyebrow">Preguntas frecuentes</p>
+      <h2 class="g-h2">Todo claro antes de agendar.</h2>
+    </div>
+    <div class="g-acc">
+      <details open><summary>¿El autodiagnóstico tiene costo?</summary><p>No. Es gratis, toma 3-4 minutos y el resultado es tuyo, trabajes o no con nosotros.</p></details>
+      <details><summary>¿Hay plazo forzoso?</summary><p>No. Te das de baja cuando quieras; el mes en curso se cobra completo.</p></details>
+      <details><summary>¿Cómo se paga?</summary><p>Con cargo automático a tu tarjeta de débito o crédito, procesado por Stripe. El primer cargo es al iniciar el mes 2.</p></details>
+      <details><summary>¿Qué pasa con mis datos si cancelo?</summary><p>Son tuyos. Te los entregamos exportados.</p></details>
+      <details><summary>¿Hay límite de leads?</summary><p>No. El sistema atiende todos los que lleguen por tus canales conectados. En el mes 1 revisamos tu volumen para dimensionar el uso de IA.</p></details>
+      <details><summary>¿Cuánto tiempo le pide el mes 1 a mi equipo?</summary><p>Una sesión de configuración y capacitación por semana. Si hace falta más, buscamos el espacio.</p></details>
+      <details><summary>¿Por qué pago aparte a WhatsApp?</summary><p>Es el canal: lo pagas directo a Meta. Cada número tiene 1,000 mensajes de servicio gratis al mes; después, Meta cobra por mensaje según su tarifa (<a href="https://developers.facebook.com/documentation/business-messaging/whatsapp/pricing" target="_blank" rel="noopener">Meta, nov. 2026</a>). A Grobi le pagas lo que pasa dentro de la conversación.</p></details>
+      <details><summary>¿Qué cubre la garantía?</summary><p>Si un lead de tus canales conectados no recibe primer contacto en el tiempo acordado, te devolvemos el 100% del mes 2. En Retener y Expandir, el criterio es que cada contacto post-venta salga en su fecha. Lo mide la hora registrada en la plataforma.</p></details>
+      <details><summary>¿En qué se diferencia de un chatbot?</summary><p>Un chatbot contesta. El sistema de Grobi califica, agenda, da seguimiento y pasa a tu ejecutivo lo que necesita criterio.</p></details>
+      <details><summary>¿Por qué canales atiende el sistema?</summary><p>WhatsApp, Instagram, Facebook y formularios web. Otros canales los revisamos en el mes 1.</p></details>
+      <details><summary>¿Funciona con mi CRM?</summary><p>Se conecta a tu CRM. Si hoy todo vive en Excel, primero te ayudamos a ordenar la información.</p></details>
+      <details><summary>¿Qué pasa con mi equipo?</summary><p>Se queda y gana tiempo. El sistema hace lo repetitivo y le pasa a tu gente lo que necesita criterio.</p></details>    </div>
+  </div>
+</section>
+
+<!-- ======================= 9. CTA DE CIERRE ======================= -->
+<div class="g-band g-band--dark">
+<section class="g-close">
+  <div class="wm-hero" role="img" aria-label="Grobi"><span class="gro">Gro</span><span class="bi">bi</span></div>
+  <h2 class="g-h2">Tu siguiente venta ya te está escribiendo.</h2>
+  <button class="g-btn" id="btn-hero-cta-2" type="button">Haz tu autodiagnóstico gratis <span aria-hidden="true">→</span></button>
+  <p class="g-close__note">Gratis · 3-4 minutos · Después, tu mes 1 va por nuestra cuenta</p>
+</section>
+
+<!-- ======================= 10. FOOTER ======================= -->
+<footer class="g-foot2">
+  <div class="g-foot2__top">
+    <div><span class="wm-sm"><span class="gro">Gro</span><span class="bi">bi</span></span><p style="margin-top:12px">Revenue &amp; Customer Lifecycle Automation.</p></div>
+    <div><h3>Página</h3><ul><li><a href="#como-funciona">Cómo funciona</a></li><li><a href="#cuando">Cuándo tiene sentido</a></li><li><a href="#resultados">Resultados</a></li><li><a href="#precios">Precios</a></li><li><a href="#faq">Preguntas</a></li></ul></div>
+    <div><h3>Legal y contacto</h3><ul>
+      <li><a href="privacidad.html">Aviso de privacidad</a></li>
+      <li><a href="terminos.html">Términos y condiciones</a></li>
+      <li><a href="https://wa.me/525530479892" target="_blank" rel="noopener">WhatsApp +52 55 3047 9892</a></li>
+    </ul></div>
+  </div>
+  <div class="g-foot2__src">
+    <b>Fuentes de las cifras</b>
+    <span>100× · MIT / InsideSales, estudio sobre tiempo de respuesta a leads.</span>
+    <span>5–25× · Harvard Business Review, "The Value of Keeping the Right Customers" (2014).</span>
+    <span>+25–95% · Bain &amp; Company, investigación sobre retención y utilidad (Frederick F. Reichheld).</span>
+    <span>$12,759 MXN/mes · Indeed México, sueldo promedio de ejecutivo de ventas (actualizado el 1 de noviembre de 2026).</span>
+    <span>Las cifras de tu negocio solo salen de lo que tú respondes en el autodiagnóstico.</span>
+    <span style="margin-top:8px">© 2026 Grobi</span>
+  </div>
+</footer>
+</div>
+
+<!-- Móvil: barra fija de CTA; aparece al salir del hero y se oculta en el quiz y el cierre -->
+<div class="g-mbar" id="g-mbar" aria-hidden="true">
+  <button class="g-btn" id="btn-bar-cta" type="button" tabindex="-1">Haz tu autodiagnóstico gratis <span aria-hidden="true">→</span></button>
+  <span>Mes 1 $0</span>
+</div>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.g-rev');
+  if (!('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('is-in'); }); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } });
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+  els.forEach(function(e){ io.observe(e); });
+})();
+
+/* Menú móvil: abre y cierra el panel de enlaces */
+(function(){
+  var nav = document.querySelector('.g-nav'), btn = document.getElementById('btn-menu'), menu = document.getElementById('g-menu');
+  if (!nav || !btn || !menu) return;
+  function set(open){ nav.classList.toggle('is-open', open); btn.setAttribute('aria-expanded', String(open)); }
+  btn.addEventListener('click', function(){ set(!nav.classList.contains('is-open')); });
+  menu.addEventListener('click', function(e){ if (e.target.closest('a')) set(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && nav.classList.contains('is-open')){ set(false); btn.focus(); } });
+  document.addEventListener('click', function(e){ if (nav.classList.contains('is-open') && !nav.contains(e.target)) set(false); });
+  addEventListener('resize', function(){ if (innerWidth > 900) set(false); });
+})();
+
+/* Carrusel de planes en móvil: puntos sincronizados con el scroll */
+(function(){
+  var track = document.querySelector('.g-plans'), dots = document.querySelectorAll('.g-plans__dots button');
+  if (!track || !dots.length) return;
+  var plans = track.querySelectorAll('.g-plan');
+  function current(){
+    var best = 0, d = Infinity, left = track.getBoundingClientRect().left;
+    plans.forEach(function(p, i){ var x = Math.abs(p.getBoundingClientRect().left - left - 16); if (x < d){ d = x; best = i; } });
+    if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 4) best = plans.length - 1;
+    return best;
+  }
+  function sync(){ var c = current(); dots.forEach(function(b, i){ b.setAttribute('aria-current', String(i === c)); }); }
+  var t; track.addEventListener('scroll', function(){ clearTimeout(t); t = setTimeout(sync, 60); }, { passive: true });
+  dots.forEach(function(b, i){ b.addEventListener('click', function(){
+    var smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    track.scrollTo({ left: plans[i].offsetLeft - track.firstElementChild.offsetLeft, behavior: smooth ? 'smooth' : 'auto' });
+  }); });
+})();
+
+/* Un solo botón lima a la vez: el del nav aparece cuando el del hero sale de pantalla */
+(function(){
+  var nav = document.querySelector('.g-nav'), hero = document.getElementById('btn-hero-cta');
+  if (!nav || !hero || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(function(entries){
+    nav.classList.toggle('is-top', entries[0].isIntersecting);
+  }, { rootMargin: '-72px 0px 0px 0px' }).observe(hero);
+})();
+
+/* Móvil: la barra fija se muestra cuando el CTA del hero ya no se ve, salvo en el quiz y el cierre */
+(function(){
+  var bar = document.getElementById('g-mbar'), hero = document.getElementById('btn-hero-cta');
+  var hide = [document.getElementById('app'), document.querySelector('.g-close'), document.getElementById('btn-pricing-cta')].filter(Boolean);
+  if (!bar || !hero || !('IntersectionObserver' in window)) return;
+  var heroIn = true, hidden = new Set();
+  function sync(){
+    var on = !heroIn && hidden.size === 0;
+    bar.classList.toggle('is-on', on);
+    bar.setAttribute('aria-hidden', String(!on));
+    bar.querySelector('button').tabIndex = on ? 0 : -1;
+  }
+  new IntersectionObserver(function(e){ heroIn = e[0].isIntersecting; sync(); }).observe(hero);
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting) hidden.add(e.target); else hidden.delete(e.target); });
+    sync();
+  });
+  hide.forEach(function(el){ io.observe(el); });
+})();
+
+/* Carrusel de integraciones: pausa manual y pausa automática fuera de pantalla */
+(function(){
+  var rows = document.getElementById('int-rows'), btn = document.querySelector('.g-int__pause');
+  if (!rows || !btn) return;
+  var manual = false, visible = true;
+  function sync(){ rows.classList.toggle('is-paused', manual || !visible); }
+  btn.addEventListener('click', function(){
+    manual = !manual;
+    btn.setAttribute('aria-pressed', String(manual));
+    btn.textContent = manual ? 'Reanudar carrusel' : 'Pausar carrusel';
+    sync();
+  });
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){ visible = entries[0].isIntersecting; sync(); }).observe(rows);
+  }
+})();
+</script>
+
+<textarea id="copy-fallback" style="position:absolute; left:-9999px; top:-9999px" aria-hidden="true"></textarea>
+
+<script>
+(function(){
+  "use strict";
+
+  var GROVA_WHATSAPP_NUMBER = "525530479892";
+  var GROVA_EMAIL = "contacto@getgrobi.com"; // con valor, la tarjeta de correo aparece sola
+  // URL del webhook que recibe los leads (n8n). Se define en config.js, que el contenedor genera
+  // desde la variable de entorno LEADS_WEBHOOK_URL. Vacía = no se envía nada.
+  var LEADS_WEBHOOK = (window.GROBI_CONFIG && window.GROBI_CONFIG.leadsWebhook) || "";
+
+  var STEPS = [
+    {
+      title: "Tu negocio",
+      questions: [
+        { id:"q_sector", kind:"radio", text:"Para hablarte en tus propios términos, ¿a qué se dedica tu negocio?",
+          options:[ {t:"Servicios profesionales o consultoría", flags:[], custWord:"cliente"}, {t:"Salud (clínica, consultorio, servicios médicos)", flags:[], custWord:"paciente"}, {t:"Educación o capacitación", flags:[], custWord:"alumno"}, {t:"Inmobiliario, comercio o retail", flags:[], custWord:"cliente"}, {t:"Tecnología o software", flags:[], custWord:"cliente"}, {t:"Otro", flags:[], custWord:"cliente"} ] }
+      ]
+    },
+    {
+      title: "Captación de leads",
+      questions: [
+        { id:"q2", kind:"radio", text:"¿En cuánto tiempo se contacta a un lead nuevo, en promedio?",
+          options:[ {t:"En minutos, casi al momento", flags:[]}, {t:"El mismo día, pero sin un tiempo definido", flags:["adquirir"]}, {t:"Al día siguiente o después", flags:["adquirir","adquirir"]}, {t:"No lo medimos", flags:["adquirir","datos"]} ] },
+        { id:"q12", kind:"number", text:"¿Cuántos leads nuevos recibes en un mes, en promedio?", suffix:"leads/mes", min:0, step:1, def:100 },
+        { id:"q13", kind:"slider", text:"¿Qué porcentaje de esos leads se contacta el mismo día?", def:50 },
+        { id:"q14", kind:"slider", text:"De los leads que sí se contactan, ¿qué porcentaje termina comprando?", def:20 }
+      ]
+    },
+    {
+      title: "Datos y proceso",
+      questions: [
+        { id:"q5", kind:"radio", text:"¿Qué tan consistente es el registro de información en tu CRM o herramienta de ventas?",
+          options:[ {t:"Muy consistente", flags:[]}, {t:"Depende del ejecutivo", flags:["datos"]}, {t:"Usamos Excel, no un CRM", flags:["datos","datos"]}, {t:"No tenemos un sistema para esto", flags:["datos","datos"]} ] },
+        { id:"q15", kind:"number", text:"¿Cuál es el valor promedio de un cliente nuevo para ti?", prefix:"$", min:0, step:1, def:5000 },
+        { id:"q16", kind:"choice2", text:"Ese valor es:", def:"recurrente",
+          options:[ {t:"Recurrente (mensual)", value:"recurrente"}, {t:"Pago único o total del contrato", value:"total"} ] }
+      ]
+    },
+    {
+      title: "Retención de clientes",
+      questions: [
+        { id:"q6", kind:"radio", text:"¿Cómo te enteras de que un cliente está en riesgo de no renovar?",
+          options:[ {t:"Lo detectamos antes, con señales de comportamiento o uso", flags:[]}, {t:"El cliente nos avisa justo antes de renovar", flags:["retener"]}, {t:"Nos enteramos cuando ya decidió no renovar", flags:["retener","retener"]}, {t:"No tenemos un proceso de seguimiento post-venta", flags:["retener","retener"]} ] },
+        { id:"q_competencia", kind:"radio", text:"Cuando un lead no compra o un cliente se va, ¿sueles saber a dónde se va?",
+          options:[ {t:"Sí, casi siempre sabemos que se va con otro proveedor", flags:[], comp:"confirmado"}, {t:"A veces lo sabemos, a veces no", flags:[], comp:"parcial"}, {t:"No, simplemente deja de responder o de pagar y no sabemos por qué", flags:[], comp:"desconocido"} ] },
+        { id:"q17", kind:"number", text:"¿Cuántos clientes activos tienes hoy?", suffix:"clientes", min:0, step:1, def:50 },
+        { id:"q18", kind:"slider", text:"¿Qué porcentaje de tus clientes cancela o no renueva en un periodo típico?", def:20 },
+        { id:"q19", kind:"choice2", text:"Ese periodo típico es:", def:"mensual",
+          options:[ {t:"Mensual", value:"mensual"}, {t:"Anual", value:"anual"} ] }
+      ]
+    },
+    {
+      title: "Tu equipo",
+      questions: [
+        { id:"q_margen", kind:"slider", text:"De lo que te paga un cliente, ¿qué porcentaje te queda como ganancia después de tus costos? No necesitas el número exacto — un estimado basta.", def:30 },
+        { id:"q_ejecutivos", kind:"number", text:"¿Cuántas personas en tu equipo se dedican a vender o atender estos leads?", suffix:"personas", min:0, step:1, def:3 },
+        { id:"q_horasdia", kind:"number", text:"De su día, ¿cuántas horas aproximadamente se les van en tareas repetitivas — como registrar información a mano o perseguir el mismo lead varias veces?", suffix:"horas/día aprox.", min:0, step:0.5, def:3 }
+      ]
+    }
+  ];
+
+  var answers = {}; // id -> {text/value, flags, context, numeric}
+  var stepIndex = 0;
+
+  var screens = {
+    hero: document.getElementById("screen-hero"),
+    quiz: document.getElementById("screen-quiz"),
+    results: document.getElementById("screen-results"),
+    contact: document.getElementById("screen-contact"),
+    final: document.getElementById("screen-final")
+  };
+
+  document.getElementById("contact-email-display").textContent = GROVA_EMAIL;
+  if (GROVA_EMAIL) document.getElementById("email-card").hidden = false;
+
+  function show(name){
+    Object.keys(screens).forEach(function(k){ screens[k].hidden = (k !== name); });
+    document.getElementById("app").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  function numVal(id){
+    var a = answers[id];
+    return a && typeof a.numeric === "number" ? a.numeric : 0;
+  }
+
+  function isAnswered(q){
+    var a = answers[q.id];
+    if (q.kind === "number") return !!a && typeof a.numeric === "number" && !isNaN(a.numeric);
+    if (q.kind === "slider") return !!a; // defaults set on render
+    if (q.kind === "choice2") return !!a;
+    return !!a; // radio
+  }
+
+  function allAnsweredInStep(idx){
+    return STEPS[idx].questions.every(isAnswered);
+  }
+
+  function renderStep(idx){
+    var step = STEPS[idx];
+    var host = document.getElementById("quiz-step-host");
+    host.innerHTML = "";
+
+    var heading = document.createElement("p");
+    heading.className = "eyebrow";
+    heading.textContent = step.title;
+    host.appendChild(heading);
+
+    step.questions.forEach(function(q){
+      var block = document.createElement("div");
+      block.className = "question";
+      var title = document.createElement("p");
+      title.className = "question-title";
+      title.textContent = q.text;
+      block.appendChild(title);
+
+      if (q.kind === "radio"){
+        var opts = document.createElement("div");
+        opts.className = "options";
+        q.options.forEach(function(opt, i){
+          var wrap = document.createElement("div");
+          wrap.className = "option";
+          var input = document.createElement("input");
+          input.type = "radio"; input.name = q.id; input.id = q.id + "-" + i;
+          if (answers[q.id] && answers[q.id].text === opt.t) input.checked = true;
+          var label = document.createElement("label");
+          label.setAttribute("for", input.id);
+          label.textContent = opt.t;
+          input.addEventListener("change", function(){
+            answers[q.id] = { text: opt.t, flags: opt.flags, custWord: opt.custWord, comp: opt.comp };
+            document.getElementById("btn-next").disabled = !allAnsweredInStep(stepIndex);
+          });
+          wrap.appendChild(input); wrap.appendChild(label);
+          opts.appendChild(wrap);
+        });
+        block.appendChild(opts);
+      }
+
+      else if (q.kind === "number"){
+        var row = document.createElement("div");
+        row.className = "num-row";
+        if (q.prefix){ var pre = document.createElement("span"); pre.className="prefix"; pre.textContent=q.prefix; row.appendChild(pre); }
+        var input = document.createElement("input");
+        input.type = "number"; input.id = q.id; input.min = q.min||0; input.step = q.step||1;
+        input.value = (answers[q.id] && typeof answers[q.id].numeric === "number") ? answers[q.id].numeric : q.def;
+        input.inputMode = "numeric";
+        answers[q.id] = { numeric: Number(input.value) };
+        input.addEventListener("input", function(){
+          var v = parseFloat(input.value);
+          answers[q.id] = { numeric: isNaN(v) ? 0 : v };
+          document.getElementById("btn-next").disabled = !allAnsweredInStep(stepIndex);
+        });
+        row.appendChild(input);
+        if (q.suffix){ var suf = document.createElement("span"); suf.className="suffix"; suf.textContent=q.suffix; row.appendChild(suf); }
+        block.appendChild(row);
+      }
+
+      else if (q.kind === "slider"){
+        var srow = document.createElement("div");
+        srow.className = "slider-row";
+        var valLabel = document.createElement("p");
+        valLabel.className = "slider-value mono";
+        var current = (answers[q.id] && typeof answers[q.id].numeric === "number") ? answers[q.id].numeric : q.def;
+        valLabel.textContent = current + "%";
+        var range = document.createElement("input");
+        range.type = "range"; range.min = 0; range.max = 100; range.step = 5; range.id = q.id;
+        range.value = current;
+        answers[q.id] = { numeric: current };
+        range.addEventListener("input", function(){
+          valLabel.textContent = range.value + "%";
+          answers[q.id] = { numeric: Number(range.value) };
+        });
+        srow.appendChild(valLabel); srow.appendChild(range);
+        block.appendChild(srow);
+      }
+
+      else if (q.kind === "choice2"){
+        var c2 = document.createElement("div");
+        c2.className = "options choice2";
+        var current2 = (answers[q.id] && answers[q.id].value) || q.def;
+        q.options.forEach(function(opt, i){
+          var wrap = document.createElement("div");
+          wrap.className = "option";
+          var input = document.createElement("input");
+          input.type = "radio"; input.name = q.id; input.id = q.id + "-" + i;
+          if (current2 === opt.value) input.checked = true;
+          var label = document.createElement("label");
+          label.setAttribute("for", input.id);
+          label.textContent = opt.t;
+          input.addEventListener("change", function(){
+            answers[q.id] = { value: opt.value, text: opt.t };
+          });
+          wrap.appendChild(input); wrap.appendChild(label);
+          c2.appendChild(wrap);
+        });
+        answers[q.id] = answers[q.id] || { value: current2, text: (q.options.filter(function(o){return o.value===current2})[0]||{}).t };
+        block.appendChild(c2);
+      }
+
+      host.appendChild(block);
+    });
+
+    document.getElementById("progress-step-label").textContent = "Paso " + (idx+1) + " / " + STEPS.length;
+    document.getElementById("progress-pct").textContent = Math.round(((idx)/STEPS.length)*100) + "%";
+    document.getElementById("progress-fill").style.width = (((idx)/STEPS.length)*100) + "%";
+    document.getElementById("btn-back").disabled = (idx === 0);
+    document.getElementById("btn-next").disabled = !allAnsweredInStep(idx);
+    document.getElementById("btn-next").textContent = (idx === STEPS.length - 1) ? "Ver mi diagnóstico" : "Siguiente";
+  }
+
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function custWord(){ return (answers.q_sector && answers.q_sector.custWord) || "cliente"; }
+  function custWordPlural(){ return custWord() + "s"; }
+
+  function compPhrase(){
+    var comp = answers.q_competencia && answers.q_competencia.comp;
+    if (comp === "confirmado") return "se va con la competencia";
+    if (comp === "parcial") return "muy probablemente se va con la competencia";
+    return "se va sin que sepas bien por qué — y lo más probable es que ya esté comprando en otro lado";
+  }
+
+  function compShort(){
+    var comp = answers.q_competencia && answers.q_competencia.comp;
+    if (comp === "confirmado") return "es casi seguro que ya está con tu competencia";
+    if (comp === "parcial") return "muy probablemente ya está con tu competencia";
+    return "se va sin que sepas bien por qué, y lo más probable es que ya esté comprando en otro lado";
+  }
+
+  function computeOpportunity(){
+    var scores = { adquirir:0, retener:0, datos:0 };
+    Object.keys(answers).forEach(function(id){
+      var a = answers[id];
+      if (a && a.flags) a.flags.forEach(function(f){ scores[f] = (scores[f]||0) + 1; });
+    });
+    var top = Object.keys(scores).reduce(function(best, k){ return (scores[k] > scores[best]) ? k : best; }, "adquirir");
+    var totalFlags = scores.adquirir + scores.retener + scores.datos;
+    var cw = custWord();
+    var headline, body;
+    if (totalFlags <= 1){
+      headline = "Hasta el proceso más ordenado tiene una fuga que no ves";
+      body = "Cada lead que tarda en contactarse, cada " + cw + " que se va sin aviso, es dinero que ya hiciste el trabajo de ganar — y que hoy se queda en la mesa.";
+    } else if (top === "adquirir" && scores.adquirir >= scores.retener){
+      headline = "Hay ventas esperando una respuesta más rápida";
+      body = "Mientras un lead espera tu respuesta, también le escribe a otros. El que contesta primero suele quedarse con la venta — y ese puede ser tu equipo.";
+    } else if (top === "retener"){
+      headline = "Tus " + custWordPlural() + " merecen más seguimiento";
+      body = "Un " + cw + " que no recibe seguimiento no avisa que se va: un día simplemente deja de pagarte. Para entonces, normalmente " + compPhrase() + " — y recuperarlo cuesta mucho más que haberlo retenido a tiempo.";
+    } else {
+      headline = "Con datos claros, verás dónde crecer";
+      body = "Hoy es difícil saber cuánto se queda en el camino. Lo que se mide, se puede mejorar.";
+    }
+    return { headline: headline, body: body };
+  }
+
+  function fmt(n){
+    if (!isFinite(n)) n = 0;
+    return "$" + Math.round(n).toLocaleString("es-MX");
+  }
+
+  function computeFinancials(){
+    var leadsPerMonth = numVal("q12");
+    var pctContacted = numVal("q13");
+    var pctClose = numVal("q14");
+    var ticketValue = numVal("q15");
+    var ticketType = (answers.q16 && answers.q16.value) || "recurrente";
+    var margenPct = numVal("q_margen");
+    var ejecutivos = numVal("q_ejecutivos");
+    var horasDia = numVal("q_horasdia");
+    var activeClients = numVal("q17");
+    var churnPct = numVal("q18");
+    var churnPeriod = (answers.q19 && answers.q19.value) || "mensual";
+
+    var uncontacted = leadsPerMonth * (1 - pctContacted/100);
+    var potentialClients = uncontacted * (pctClose/100);
+    var acquisitionLoss = potentialClients * ticketValue;
+    var acquisitionLossProfit = acquisitionLoss * (margenPct/100);
+
+    var clientsLost = activeClients * (churnPct/100);
+    var churnLossRaw = clientsLost * ticketValue;
+    var churnLossMonthly = churnPeriod === "anual" ? churnLossRaw/12 : churnLossRaw;
+    var churnLossProfit = churnLossRaw * (margenPct/100);
+
+    var combinedMonthly = (ticketType === "recurrente") ? (acquisitionLoss + churnLossMonthly) : null;
+
+    // CAC ya no se calcula: quitamos la pregunta de inversión en marketing para enfocar el diagnóstico en operación comercial.
+    var contactedLeads = leadsPerMonth * (pctContacted/100);
+    var currentNewClients = contactedLeads * (pctClose/100);
+    var cacActual = null;
+    var cacPotencial = null;
+
+    // LTV: solo tiene sentido si el ticket es recurrente
+    var monthlyChurnRate = churnPeriod === "anual" ? (churnPct/100)/12 : (churnPct/100);
+    var ltv = (ticketType === "recurrente" && monthlyChurnRate > 0) ? (ticketValue / monthlyChurnRate) : null;
+    var ltvCacRatio = (ltv !== null && cacActual) ? (ltv / cacActual) : null;
+
+    var horasPerdidasMes = ejecutivos * horasDia * 22;
+
+    return {
+      leadsPerMonth: leadsPerMonth, pctContacted: pctContacted, pctClose: pctClose,
+      uncontacted: uncontacted, potentialClients: potentialClients, acquisitionLoss: acquisitionLoss, acquisitionLossProfit: acquisitionLossProfit,
+      activeClients: activeClients, churnPct: churnPct, churnPeriod: churnPeriod,
+      clientsLost: clientsLost, churnLossRaw: churnLossRaw, churnLossMonthly: churnLossMonthly, churnLossProfit: churnLossProfit,
+      ticketType: ticketType, combinedMonthly: combinedMonthly, margenPct: margenPct,
+      cacActual: cacActual, cacPotencial: cacPotencial, currentNewClients: currentNewClients,
+      ltv: ltv, ltvCacRatio: ltvCacRatio,
+      horasPerdidasMes: horasPerdidasMes, ejecutivos: ejecutivos, horasDia: horasDia
+    };
+  }
+
+  var resultsCache = null;
+  var financialsCache = null;
+  var potentialCache = null;
+
+  function renderResults(){
+    resultsCache = computeOpportunity();
+    financialsCache = computeFinancials();
+    document.getElementById("results-headline").textContent = resultsCache.headline;
+    document.getElementById("results-body").textContent = resultsCache.body;
+
+    var f = financialsCache;
+    var cw = custWord();
+    var cwPlural = custWordPlural();
+
+    var accEl = document.getElementById("stat-acquisition");
+    accEl.innerHTML = "";
+    var accLabel = document.createElement("p"); accLabel.className="stat-label"; accLabel.textContent="Ventas que hoy se quedan sin respuesta";
+    var accValue = document.createElement("p"); accValue.className="stat-value"; accValue.textContent = fmt(f.acquisitionLoss) + " / mes";
+    var accCap = document.createElement("p"); accCap.className="stat-caption";
+    accCap.textContent = "De " + Math.round(f.uncontacted) + " leads al mes que no se contactan a tiempo, ≈" + Math.round(f.potentialClients) + " terminaron comprándole a otro. Son leads que ya generaste y que puedes atender a tiempo.";
+    accEl.appendChild(accLabel); accEl.appendChild(accValue); accEl.appendChild(accCap);
+
+    var churnEl = document.getElementById("stat-churn");
+    churnEl.innerHTML = "";
+    var periodWord = f.churnPeriod === "anual" ? "al año" : "al mes";
+    var churnLabel = document.createElement("p"); churnLabel.className="stat-label"; churnLabel.textContent = "Tus " + cwPlural + " que necesitan más seguimiento";
+    var churnValue = document.createElement("p"); churnValue.className="stat-value"; churnValue.textContent = fmt(f.churnLossRaw) + " " + periodWord;
+    var churnCap = document.createElement("p"); churnCap.className="stat-caption";
+    churnCap.textContent = "≈" + Math.round(f.clientsLost) + " de tus " + Math.round(f.activeClients) + " " + cwPlural + " dejan de pagarte " + periodWord + " — y cuando se van, " + compShort() + ".";
+    churnEl.appendChild(churnLabel); churnEl.appendChild(churnValue); churnEl.appendChild(churnCap);
+
+    var cacEl = document.getElementById("stat-cac");
+    if (f.cacActual !== null){
+      cacEl.hidden = false;
+      cacEl.innerHTML = "";
+      var cacLabel = document.createElement("p"); cacLabel.className="stat-label"; cacLabel.textContent = "Estás pagando de más por cada " + cw + " nuevo";
+      var cacValue = document.createElement("p"); cacValue.className="stat-value"; cacValue.textContent = fmt(f.cacActual);
+      var cacCap = document.createElement("p"); cacCap.className="stat-caption";
+      cacCap.textContent = "De " + fmt(numVal("q_inversion")) + " al mes, hoy salen ≈" + Math.round(f.currentNewClients) + " " + cwPlural + " nuevos." + (f.cacPotencial !== null ? " Contactando a tiempo, ese costo bajaría a ≈" + fmt(f.cacPotencial) + "." : "");
+      cacEl.appendChild(cacLabel); cacEl.appendChild(cacValue); cacEl.appendChild(cacCap);
+    } else { cacEl.hidden = true; }
+
+    var ltvEl = document.getElementById("stat-ltv");
+    if (f.ltv !== null){
+      ltvEl.hidden = false;
+      ltvEl.innerHTML = "";
+      var ltvLabel = document.createElement("p"); ltvLabel.className="stat-label"; ltvLabel.textContent = "Esto es lo que vale cada " + cw + " que dejas ir";
+      var ltvValue = document.createElement("p"); ltvValue.className="stat-value"; ltvValue.textContent = fmt(f.ltv);
+      var ltvCap = document.createElement("p"); ltvCap.className="stat-caption";
+      ltvCap.textContent = "Lo que te paga un " + cw + " promedio mientras se queda contigo." + (f.ltvCacRatio !== null ? " Cada " + cw + " que pierdes antes de tiempo se lleva $" + f.ltvCacRatio.toFixed(1) + " por cada $1 que invertiste en conseguirlo." : "");
+      ltvEl.appendChild(ltvLabel); ltvEl.appendChild(ltvValue); ltvEl.appendChild(ltvCap);
+    } else { ltvEl.hidden = true; }
+
+    var teamEl = document.getElementById("stat-team");
+    if (f.horasPerdidasMes > 0){
+      teamEl.hidden = false;
+      teamEl.innerHTML = "";
+      var teamLabel = document.createElement("p"); teamLabel.className="stat-label"; teamLabel.textContent = "Horas de tu equipo que no están vendiendo";
+      var teamValue = document.createElement("p"); teamValue.className="stat-value"; teamValue.textContent = Math.round(f.horasPerdidasMes) + " horas/mes";
+      var teamCap = document.createElement("p"); teamCap.className="stat-caption";
+      teamCap.textContent = f.ejecutivos + " personas, " + f.horasDia + " horas al día cada una, perdidas en tareas manuales en vez de vender.";
+      teamEl.appendChild(teamLabel); teamEl.appendChild(teamValue); teamEl.appendChild(teamCap);
+    } else { teamEl.hidden = true; }
+
+    var combinedEl = document.getElementById("stat-combined");
+    var noteEl = document.getElementById("combined-note");
+    if (f.combinedMonthly !== null){
+      combinedEl.hidden = false;
+      combinedEl.innerHTML = "";
+      var cLabel = document.createElement("p"); cLabel.className="stat-label"; cLabel.textContent="Esto es lo que pierdes cada mes, sin excepción";
+      var cValue = document.createElement("p"); cValue.className="stat-value"; cValue.textContent = fmt(f.combinedMonthly) + " / mes";
+      var cCap = document.createElement("p"); cCap.className="stat-caption";
+      cCap.textContent = "Se repite mes tras mes mientras nada cambia." + (f.churnPeriod === "anual" ? " (Cancelación anual prorrateada a mensual.)" : "");
+      combinedEl.appendChild(cLabel); combinedEl.appendChild(cValue); combinedEl.appendChild(cCap);
+      noteEl.hidden = true;
+    } else {
+      combinedEl.hidden = true;
+      noteEl.hidden = false;
+      noteEl.querySelector("span:last-child").textContent = "Como tu ticket es un pago único, no sumamos ambas cifras en un solo total para no mezclar unidades — pero las dos son ingresos que hoy se te están yendo.";
+    }
+
+    var ctaEl = document.getElementById("cta-line");
+    if (f.combinedMonthly !== null){
+      ctaEl.textContent = "Cada mes, son otros " + fmt(f.combinedMonthly) + " que podrías recuperar.";
+    } else {
+      ctaEl.textContent = "Cada mes, son otros " + fmt(f.acquisitionLoss) + " que podrías recuperar.";
+    }
+
+    setupPotentialSliders(f, cw, cwPlural);
+  }
+
+  function computePotential(f, goalContacted, goalChurn){
+    var ticketValue = numVal("q15");
+    var newUncontacted = f.leadsPerMonth * (1 - goalContacted/100);
+    var newPotentialClients = newUncontacted * (f.pctClose/100);
+    var newAcquisitionLoss = newPotentialClients * ticketValue;
+    var gainAcquisition = Math.max(0, f.acquisitionLoss - newAcquisitionLoss);
+
+    var newClientsLost = f.activeClients * (goalChurn/100);
+    var newChurnLossRaw = newClientsLost * ticketValue;
+    var newChurnLossMonthly = f.churnPeriod === "anual" ? newChurnLossRaw/12 : newChurnLossRaw;
+    var oldChurnLossMonthly = f.churnPeriod === "anual" ? f.churnLossRaw/12 : f.churnLossRaw;
+    var gainChurnMonthly = Math.max(0, oldChurnLossMonthly - newChurnLossMonthly);
+
+    var totalGain = (f.ticketType === "recurrente") ? (gainAcquisition + gainChurnMonthly) : null;
+    return { gainAcquisition: gainAcquisition, gainChurnMonthly: gainChurnMonthly, totalGain: totalGain };
+  }
+
+  function setupPotentialSliders(f, cw, cwPlural){
+    var goalContactedEl = document.getElementById("goal-contacted");
+    var goalChurnEl = document.getElementById("goal-churn");
+    var goalContactedValueEl = document.getElementById("goal-contacted-value");
+    var goalChurnValueEl = document.getElementById("goal-churn-value");
+
+    var suggestedContacted = Math.min(95, Math.round((f.pctContacted + 30) / 5) * 5);
+    var suggestedChurn = Math.max(0, Math.round((f.churnPct - 10) / 5) * 5);
+    goalContactedEl.value = suggestedContacted;
+    goalChurnEl.value = suggestedChurn;
+    goalContactedValueEl.textContent = suggestedContacted + "%";
+    goalChurnValueEl.textContent = suggestedChurn + "%";
+
+    function update(){
+      var gc = Number(goalContactedEl.value);
+      var gch = Number(goalChurnEl.value);
+      goalContactedValueEl.textContent = gc + "%";
+      goalChurnValueEl.textContent = gch + "%";
+      var p = computePotential(f, gc, gch);
+      potentialCache = { goalContacted: gc, goalChurn: gch, gainAcquisition: p.gainAcquisition, gainChurnMonthly: p.gainChurnMonthly, totalGain: p.totalGain };
+      var potEl = document.getElementById("stat-potential");
+      potEl.innerHTML = "";
+      var pLabel = document.createElement("p"); pLabel.className="stat-label"; pLabel.textContent="Lo que recuperarías al mes con esas metas";
+      var pValue = document.createElement("p"); pValue.className="stat-value";
+      pValue.textContent = (p.totalGain !== null) ? (fmt(p.totalGain) + " / mes") : (fmt(p.gainAcquisition) + " / mes + " + fmt(p.gainChurnMonthly) + " en el periodo de cancelación");
+      var pCap = document.createElement("p"); pCap.className="stat-caption";
+      pCap.textContent = "Pasar de " + f.pctContacted + "% a " + gc + "% de leads contactados a tiempo, y de " + f.churnPct + "% a " + gch + "% de cancelación, es lo que un proceso sistematizado busca lograr contigo — no es automático ni inmediato.";
+      potEl.appendChild(pLabel); potEl.appendChild(pValue); potEl.appendChild(pCap);
+
+      document.getElementById("potential-body").textContent = "Esto es, en buena parte, lo que hacemos: el sistema de Grobi atiende cada lead al momento, sin esperar a que alguien tenga tiempo libre. El seguimiento deja de depender de la memoria de un ejecutivo, y tu CRM se actualiza en cada contacto. Del lado de tus " + cwPlural + ", se activa un plan de acompañamiento sistemático — ya no reactivo — pensado para bajar la incertidumbre que lleva al abandono, y que eso se refleje en la satisfacción de tus " + cwPlural + ".";
+    }
+
+    goalContactedEl.addEventListener("input", update);
+    goalChurnEl.addEventListener("input", update);
+    update();
+  }
+
+  function startQuiz(){
+    stepIndex = 0;
+    renderStep(0);
+    show("quiz");
+  }
+
+  document.getElementById("btn-start").addEventListener("click", startQuiz);
+  document.getElementById("btn-hero-cta").addEventListener("click", startQuiz);
+  document.getElementById("btn-hero-cta-2").addEventListener("click", startQuiz);
+  document.getElementById("btn-nav-cta").addEventListener("click", startQuiz);
+  document.getElementById("btn-pricing-cta").addEventListener("click", startQuiz);
+  document.getElementById("btn-mid-cta").addEventListener("click", startQuiz);
+  document.getElementById("btn-bar-cta").addEventListener("click", startQuiz);
+
+  document.getElementById("btn-back").addEventListener("click", function(){
+    if (stepIndex === 0) return;
+    stepIndex -= 1;
+    renderStep(stepIndex);
+  });
+
+  document.getElementById("btn-next").addEventListener("click", function(){
+    if (!allAnsweredInStep(stepIndex)) return;
+    if (stepIndex === STEPS.length - 1){
+      renderResults();
+      show("results");
+    } else {
+      stepIndex += 1;
+      renderStep(stepIndex);
+    }
+  });
+
+  document.getElementById("btn-to-contact").addEventListener("click", function(){
+    show("contact");
+  });
+
+  function contactValid(){
+    return document.getElementById("f-nombre").value.trim() !== "" &&
+           document.getElementById("f-empresa").value.trim() !== "" &&
+           (document.getElementById("f-email").value.trim() !== "" || document.getElementById("f-whatsapp").value.trim() !== "");
+  }
+
+  ["f-nombre","f-empresa","f-rol","f-email","f-whatsapp"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", function(){
+      document.getElementById("btn-to-final").disabled = !contactValid();
+    });
+  });
+
+  function buildSummary(){
+    var lines = [];
+    lines.push("Autodiagnóstico Grobi");
+    lines.push("");
+    lines.push("Nombre: " + document.getElementById("f-nombre").value.trim());
+    lines.push("Empresa: " + document.getElementById("f-empresa").value.trim());
+    var rol = document.getElementById("f-rol").value.trim();
+    if (rol) lines.push("Rol: " + rol);
+    var email = document.getElementById("f-email").value.trim();
+    if (email) lines.push("Correo: " + email);
+    var wa = document.getElementById("f-whatsapp").value.trim();
+    if (wa) lines.push("WhatsApp: " + wa);
+    lines.push("");
+    lines.push("Dónde está la oportunidad: " + (resultsCache ? resultsCache.headline : ""));
+    lines.push("");
+    if (financialsCache){
+      var f = financialsCache;
+      var cwPlural2 = custWordPlural();
+      lines.push("Si nada cambia, podría estar perdiendo:");
+      lines.push("- Por leads no contactados a tiempo: " + fmt(f.acquisitionLoss) + " / mes (≈" + Math.round(f.potentialClients) + " " + cwPlural2 + " potenciales; ≈" + fmt(f.acquisitionLossProfit) + " en utilidad)");
+      lines.push("- Por cancelaciones: " + fmt(f.churnLossRaw) + " " + (f.churnPeriod === "anual" ? "al año" : "al mes") + " (≈" + Math.round(f.clientsLost) + " " + cwPlural2 + "; ≈" + fmt(f.churnLossProfit) + " en utilidad)");
+      if (f.combinedMonthly !== null) lines.push("- Combinado estimado: " + fmt(f.combinedMonthly) + " / mes");
+      if (f.cacActual !== null) lines.push("- Costo actual de un " + custWord() + " nuevo (CAC): " + fmt(f.cacActual) + (f.cacPotencial !== null ? " (bajaría a ≈" + fmt(f.cacPotencial) + " si se contactara el 100% de los leads)" : ""));
+      if (f.ltv !== null) lines.push("- Valor de vida de un " + custWord() + " (LTV): " + fmt(f.ltv) + (f.ltvCacRatio !== null ? " (relación LTV:CAC ≈ " + f.ltvCacRatio.toFixed(1) + ":1)" : ""));
+      if (f.horasPerdidasMes > 0) lines.push("- Horas del equipo en tareas repetitivas: ≈" + Math.round(f.horasPerdidasMes) + " horas/mes");
+      lines.push("");
+      if (potentialCache){
+        lines.push("Si llegara a " + potentialCache.goalContacted + "% de leads contactados a tiempo y " + potentialCache.goalChurn + "% de cancelación:");
+        lines.push("- Recuperaría aproximadamente " + fmt(potentialCache.gainAcquisition) + " / mes por captación" + (potentialCache.totalGain !== null ? " + " + fmt(potentialCache.gainChurnMonthly) + " / mes por retención (total ≈" + fmt(potentialCache.totalGain) + " / mes)" : ""));
+        lines.push("");
+      }
+    }
+    lines.push("Respuestas:");
+    STEPS.forEach(function(step){
+      step.questions.forEach(function(q){
+        var a = answers[q.id];
+        if (!a) return;
+        var display = (typeof a.numeric === "number") ? (a.numeric + (q.suffix ? " " + q.suffix : (q.kind === "slider" ? "%" : ""))) : a.text;
+        lines.push("- " + q.text + " → " + display);
+      });
+    });
+    return lines.join("\n");
+  }
+
+  document.getElementById("btn-to-final").addEventListener("click", function(){
+    if (!contactValid()) return;
+    var summary = buildSummary();
+    document.getElementById("summary-text").textContent = summary;
+    show("final");
+    sendLead(summary);
+  });
+
+  // Envía el lead al webhook una sola vez por visita. Si falla, el visitante no lo nota:
+  // sigue teniendo WhatsApp y copiar resumen.
+  var leadSent = false;
+  function sendLead(summary){
+    if (!LEADS_WEBHOOK || leadSent || !window.fetch) return;
+    leadSent = true;
+    var v = function(id){ return document.getElementById(id).value.trim(); };
+    var payload = {
+      nombre: v("f-nombre"), empresa: v("f-empresa"), rol: v("f-rol"),
+      correo: v("f-email"), whatsapp: v("f-whatsapp"),
+      oportunidad: resultsCache ? resultsCache.headline : "",
+      resumen: summary,
+      pagina: location.href, enviado: new Date().toISOString()
+    };
+    try {
+      fetch(LEADS_WEBHOOK, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(payload), keepalive:true, mode:"cors" })
+        .catch(function(){ leadSent = false; });
+    } catch(e){ leadSent = false; }
+  }
+
+  function copyText(text, btn){
+    function done(){
+      if (!btn) return;
+      var original = btn.textContent;
+      btn.textContent = "Copiado";
+      btn.classList.add("copied");
+      setTimeout(function(){ btn.textContent = original; btn.classList.remove("copied"); }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(function(){ fallbackCopy(text); done(); });
+    } else {
+      fallbackCopy(text);
+      done();
+    }
+  }
+
+  function fallbackCopy(text){
+    var ta = document.getElementById("copy-fallback");
+    ta.value = text;
+    ta.style.left = "0"; ta.style.top = "0";
+    ta.focus(); ta.select();
+    try { document.execCommand("copy"); } catch(e){}
+    ta.style.left = "-9999px"; ta.style.top = "-9999px";
+  }
+
+  document.getElementById("btn-copy-summary").addEventListener("click", function(){
+    copyText(buildSummary(), this);
+  });
+
+  document.getElementById("btn-send-whatsapp").addEventListener("click", function(){
+    var text = encodeURIComponent(buildSummary());
+    window.open("https://wa.me/" + GROVA_WHATSAPP_NUMBER + "?text=" + text, "_blank");
+  });
+
+})();
+</script>
